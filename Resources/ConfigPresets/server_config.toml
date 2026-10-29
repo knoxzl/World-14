@@ -157,3 +157,12 @@ enabled = false
 
 # More information on working with the config file can be found here:
 # https://docs.spacestation14.com/en/general-development/tips/config-file-reference.html
+
+[planet14]
+# Use the Planet 14 preset and starter map. Start/resume the clock when the round begins.
+# Set false to disable Planet 14's clock and daily announcements.
+enabled = true
+day_length_seconds = 86400
+starter_planet = "Planet14Starter"
+day_announcements = true
+day_announcement_sound = true

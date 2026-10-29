@@ -10,6 +10,9 @@ planet14_planet Planet14Starter
 planet14_planet Planet14Barren 1234
 ```
 
+The normal Planet 14 round automatically generates and uses `planet14.starter_planet`
+(default `Planet14Starter`). These commands are for creating additional planets manually.
+
 Each command creates a **new map** and prints its map ID. Visit it with the existing
 mapping/teleport tools. Generation loads terrain around players as they explore; these
 are SS14 procedural map planes, not finite spherical worlds. The command does not
@@ -89,7 +92,7 @@ a map; later generation errors are logged and an incomplete map is queued for re
 
 ## NT daily broadcasts
 
-With `planet14.enabled = true` and a started sector clock, Nanotrasen Sector Relief
+The sector clock starts automatically when the first round begins. Nanotrasen Sector Relief
 broadcasts the sector day in global announcement chat with the normal announcement cue.
 Messages are in `Resources/Locale/en-US/_Planet14/announcements.ftl`; edit them to change
 the wording without C# changes. The sender is `planet14-nt-announcer`. Message IDs are
@@ -109,8 +112,9 @@ explain stabilization, the last return window, and permanent closure. Days 13–
 evacuation preparations and the final day. Announcements describe the intended sector
 schedule; physical evacuation and Black Space travel mechanics are still separate work.
 
-There is one broadcast per sector day, not per login. An empty server still advances
-and broadcasts; players connecting later see subsequent broadcasts. After an outage,
+There is one broadcast per sector day, not per login. An empty server still advances,
+but holds the current day's broadcast until someone connects, so automatic startup
+does not waste the welcome message. After an outage,
 only the current day's message is eligible, never a backlog of missed days. A collapsed
 sector sends no new daily broadcast.
 

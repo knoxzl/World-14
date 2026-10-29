@@ -4,6 +4,7 @@ cmd-planet14_start-desc = Starts and saves the Planet 14 sector clock. Requires 
 cmd-planet14_start-help = Usage: planet14_start
 
 planet14-clock-disabled = The Planet 14 clock is disabled. Set planet14.enabled before starting the server.
+planet14-clock-waiting-round = The sector clock will start automatically when the round begins.
 planet14-clock-load-failed = The saved sector clock could not be loaded. Check the server log and repair the save before starting a cycle.
 planet14-clock-already-started = A sector cycle already exists. It cannot be restarted with this command.
 planet14-clock-started = The Basirath sector clock has started and been saved.

@@ -35,34 +35,7 @@ public sealed partial class Planet14PlanetSystem : EntitySystem
         {
             var uid = _maps.CreateMap(out var id, runMapInit: false);
             createdMap = uid;
-            _metadata.SetEntityName(uid, planet.Name);
-            _biomes.EnsurePlanet(uid, biome, seed, mapLight: planet.AmbientLight);
-
-            var gravity = Comp<GravityComponent>(uid);
-            gravity.Enabled = planet.Gravity;
-            gravity.Inherent = planet.Gravity;
-            Dirty(uid, gravity);
-
-            var settings = planet.DayNight;
-            var light = Comp<LightCycleComponent>(uid);
-            light.Enabled = settings.Enabled;
-            light.InitialOffset = false;
-            light.Duration = settings.Duration;
-            light.Offset = settings.Offset;
-            light.MinLightLevel = settings.MinLightLevel;
-            light.MaxLightLevel = settings.MaxLightLevel;
-            light.ClipLight = settings.ClipLight;
-            light.MinLevel = settings.MinLevel;
-            light.MaxLevel = settings.MaxLevel;
-            light.ClipLevel = settings.ClipLevel;
-            Dirty(uid, light);
-
-            // A fixed-light planet should not keep rotating its shadows.
-            if (!settings.Enabled)
-            {
-                RemComp<SunShadowCycleComponent>(uid);
-                RemComp<SunShadowComponent>(uid);
-            }
+            ApplyRecipe(uid, planet, seed);
 
             // Apply all settings before MapInit copies the light duration/offset to shadows.
             _maps.InitializeMap(uid);
@@ -78,6 +51,41 @@ public sealed partial class Planet14PlanetSystem : EntitySystem
             Log.Error($"Could not generate Planet 14 planet {prototype}: {e}");
             message = Loc.GetString("planet14-planet-failed");
             return false;
+        }
+    }
+
+    /// <summary>Configures the round's uninitialized map before players are spawned.</summary>
+    public void ApplyRecipe(EntityUid uid, Planet14PlanetPrototype planet, int? seed = null)
+    {
+        seed ??= planet.Seed;
+        if (seed < 0 || !planet.DayNight.IsValid)
+            throw new ArgumentException($"Invalid planet recipe {planet.ID}");
+
+        _metadata.SetEntityName(uid, planet.Name);
+        _biomes.EnsurePlanet(uid, ProtoMan.Index(planet.Biome), seed, mapLight: planet.AmbientLight);
+        var gravity = Comp<GravityComponent>(uid);
+        gravity.Enabled = planet.Gravity;
+        gravity.Inherent = planet.Gravity;
+        Dirty(uid, gravity);
+
+        var settings = planet.DayNight;
+        var light = Comp<LightCycleComponent>(uid);
+        light.Enabled = settings.Enabled;
+        light.InitialOffset = false;
+        light.Duration = settings.Duration;
+        light.Offset = settings.Offset;
+        light.MinLightLevel = settings.MinLightLevel;
+        light.MaxLightLevel = settings.MaxLightLevel;
+        light.ClipLight = settings.ClipLight;
+        light.MinLevel = settings.MinLevel;
+        light.MaxLevel = settings.MaxLevel;
+        light.ClipLevel = settings.ClipLevel;
+        Dirty(uid, light);
+
+        if (!settings.Enabled)
+        {
+            RemComp<SunShadowCycleComponent>(uid);
+            RemComp<SunShadowComponent>(uid);
         }
     }
 }

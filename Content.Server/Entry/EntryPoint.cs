@@ -1,4 +1,5 @@
 using Content.Server._Planet14.Sector;
+using Content.Server._Planet14.Planets;
 using Content.Server.Acz;
 using Content.Server.Administration;
 using Content.Server.Administration.Logs;
@@ -99,6 +100,7 @@ namespace Content.Server.Entry
             Dependencies.InjectDependencies(this);
 
             LoadConfigPresets(_cfg, _res, _log.GetSawmill("configpreset"));
+            Planet14RoundSystem.Configure(_cfg);
 
             var aczProvider = new ContentMagicAczProvider(Dependencies);
             _host.SetMagicAczProvider(aczProvider);

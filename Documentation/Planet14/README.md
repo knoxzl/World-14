@@ -8,10 +8,11 @@ an evacuation pod escape its collapse.
 
 ## This first implementation
 
-This change supplies an **opt-in sector clock**, durable UTC origin, scheduled phases,
+This change supplies an **automatically started sector clock**, durable UTC origin, scheduled phases,
 four-minute pulse events, NT daily chat announcements, configurable generated planets,
+a Planet 14 round preset, automatic starter-planet spawning, a Survivor role and kit,
 console commands, automated tests, and the setting below.
-It does **not** yet supply a complete Planet 14 game mode, campaign maps, character resets,
+It does **not** yet supply a complete campaign, character resets,
 Black Space traversal, audio, an evacuation ship, pods, capacity calculation, Discord
 integration, or destructive collapse. Phase names describe the schedule; they do not
 claim that a physical ship has spawned or that a portal currently works.
@@ -19,24 +20,52 @@ claim that a physical ship has spawned or that a portal currently works.
 See [Planet recipes and announcements](PLANETS.md) to add planets, customize terrain
 and day/night cycles, or edit the daily broadcasts.
 
-Existing SS14 presets and round flow are unchanged. Existing map persistence is not a
-complete solution for the planned persistent worlds and offline characters.
+When Planet 14 is enabled, it forces its own preset, starter map, and Survivor role.
+Set `planet14.enabled = false` before starting to use ordinary SS14 presets instead.
+Existing map persistence is not a complete solution for persistent worlds and offline characters.
 
 ### Running the clock
 
-Add to the server configuration before startup:
+The sector clock is enabled by default. Start the server normally:
+
+```text
+dotnet run --project Content.Server --configuration Release --no-build
+```
+
+The lobby appears first. When the round starts, the starter planet is generated,
+players spawn as Survivors, and the sector clock automatically creates its first save.
+Later rounds resume that same cycle. No `planet14_start` command or `--cvar` flag is required.
+The shipped server configuration includes these defaults:
 
 ```toml
 [planet14]
 enabled = true
 day_length_seconds = 86400
+starter_planet = "Planet14Starter"
 ```
 
-In the server console, run `planet14_start` once. In-game use requires the Server
-administrator flag. `planet14_status` is available to everyone. Commands accept no
-arguments. Starting writes `planet14/sector-cycle.json` under the server's user-data
-directory before activating the clock. Restarting loads that origin automatically;
-normal round restarts do not reset it. No cycle starts merely by enabling the setting.
+`planet14_status` is available to everyone. `planet14_start` remains a Server-admin
+recovery command if initial save creation failed; it never replaces an existing cycle.
+In a fresh lobby, status says that the clock is waiting for the round to begin.
+Starting writes `planet14/sector-cycle.json` under the server's user-data directory
+before activating the clock. Normal round restarts do not reset it. An existing cycle,
+including a collapsed cycle, is never automatically replaced.
+Set `enabled = false` in the `[planet14]` section before startup to disable the clock.
+An explicit false in an older configuration still overrides the new default.
+
+### Survivor spawning and kit
+
+Round-start and late-joining players spawn on the configured starter planet as Survivors,
+regardless of their old station job preferences. A clear arrival area prevents terrain
+objects from appearing inside freshly spawned players. The Survivor backpack contains
+gauze, bruise packs, ointment, a crowbar, wrench, screwdriver, wirecutters, welder,
+multitool, mining drill, a nutribrick, and water. Clothing, shoes, a PDA, and headset are
+also supplied. Edit `Resources/Prototypes/_Planet14/round.yml` to change the kit.
+
+The starter round uses a minimal station record solely for normal SS14 job/ID bookkeeping.
+It does not load the development station's cargo shuttles, wreck fields, or station event
+schedulers. Terrain loads as players explore. Test movement after compilation finishes:
+running a full build on the server's machine competes for CPU and can stall simulation.
 
 For testing, set `day_length_seconds = 60` **before starting a new cycle**. A complete
 cycle then takes fifteen minutes. All intra-day deadlines and pulses scale equally.
@@ -94,9 +123,10 @@ dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --filter Fu
 ```
 
 On a development server, check `help planet14_status` and `help planet14_start`.
-With the clock disabled, starting must fail without creating a save. Enable it on a
-fresh development user-data directory and start a 60-second-day cycle: status should
-begin at day 1, a second start must fail, and day 4 must begin three minutes later.
+With the clock disabled, starting must fail without creating a save. Start a server on a
+fresh development user-data directory with a 60-second day: status should wait in the lobby,
+then automatically begin at day 1 when the round starts. A second clock start must fail,
+and day 4 must begin three minutes after the first round begins.
 Leave it empty: the server log must still report day/phase transitions while auto-paused.
 Restart using the same directory and a different configured day length: the saved
 origin and original day length must still apply. Corrupt a **development copy** of

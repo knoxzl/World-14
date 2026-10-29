@@ -21,7 +21,9 @@ public sealed partial class SectorStatusCommand : LocalizedEntityCommands
 
         if (!_sector.TryGetSnapshot(out var snapshot))
         {
-            shell.WriteLine(Loc.GetString("planet14-clock-unavailable"));
+            shell.WriteLine(Loc.GetString(_sector.WaitingForRound
+                ? "planet14-clock-waiting-round"
+                : "planet14-clock-unavailable"));
             return;
         }
 

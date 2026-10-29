@@ -1,0 +1,88 @@
+- type: gamePreset
+  id: Planet14
+  alias: [planet14]
+  name: planet14-preset-title
+  description: planet14-preset-description
+  showInVote: false
+  supportedMaps: Planet14
+  rules: []
+
+- type: gameMapPool
+  id: Planet14
+  maps: [Planet14]
+
+- type: entity
+  id: Planet14SurvivorStation
+  parent: [BaseStation, BaseStationJobsSpawning]
+  categories: [HideSpawnMenu]
+
+- type: gameMap
+  id: Planet14
+  mapName: Basirath starter planet
+  mapPath: /Maps/Test/empty.yml
+  minPlayers: 0
+  maxRandomOffset: 0
+  randomRotation: false
+  stations:
+    Empty:
+      stationProto: Planet14SurvivorStation
+      components:
+      - type: StationNameSetup
+        mapNameTemplate: Basirath survivors
+      - type: StationJobs
+        availableJobs:
+          Survivor: [-1, -1]
+
+- type: job
+  id: Survivor
+  name: planet14-job-name-survivor
+  description: planet14-job-description-survivor
+  playTimeTracker: JobSurvivor
+  startingGear: Planet14SurvivorGear
+  icon: JobIconPassenger
+  supervisors: planet14-job-supervisors
+  canBeAntag: false
+
+- type: playTimeTracker
+  id: JobSurvivor
+
+- type: department
+  id: Planet14Survivors
+  name: planet14-department-name
+  description: planet14-job-description-survivor
+  color: "#8CAB6A"
+  roles: [Survivor]
+  weight: 1000
+
+- type: startingGear
+  id: Planet14SurvivorGear
+  equipment:
+    jumpsuit: ClothingUniformJumpsuitColorGrey
+    shoes: ClothingShoesColorBlack
+    back: Planet14SurvivorBackpack
+    id: PassengerPDA
+    ears: ClothingHeadsetGrey
+
+- type: entity
+  id: Planet14SurvivorBackpack
+  parent: ClothingBackpack
+  name: survivor backpack
+  description: Medical supplies, basic tools, and a mining drill for a fresh start on Basirath.
+  components:
+  - type: Storage
+    grid:
+    - 0,0,7,4
+  - type: StorageFill
+    contents:
+    - id: Gauze
+    - id: Brutepack
+    - id: Ointment
+    - id: Crowbar
+    - id: Wrench
+    - id: Screwdriver
+    - id: Wirecutter
+    - id: Welder
+    - id: Multitool
+    - id: MiningDrill
+    - id: FoodSnackNutribrick
+    - id: DrinkWaterBottleFull
