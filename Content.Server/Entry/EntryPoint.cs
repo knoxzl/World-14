@@ -1,3 +1,4 @@
+using Content.Server._Planet14.Sector;
 using Content.Server.Acz;
 using Content.Server.Administration;
 using Content.Server.Administration.Logs;
@@ -184,6 +185,7 @@ namespace Content.Server.Entry
                 }
 
                 case ModUpdateLevel.FramePostEngine:
+                    _entSys.GetEntitySystem<SectorCycleSystem>().UpdateClock();
                     _updateManager.Update();
                     _playTimeTracking.Update();
                     _watchlistWebhookManager.Update();
