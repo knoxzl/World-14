@@ -9,11 +9,15 @@ an evacuation pod escape its collapse.
 ## This first implementation
 
 This change supplies an **opt-in sector clock**, durable UTC origin, scheduled phases,
-four-minute pulse events, console status, automated tests, and the setting below.
-It does **not** yet supply a playable Planet 14 game mode, planet maps, character resets,
+four-minute pulse events, NT daily chat announcements, configurable generated planets,
+console commands, automated tests, and the setting below.
+It does **not** yet supply a complete Planet 14 game mode, campaign maps, character resets,
 Black Space traversal, audio, an evacuation ship, pods, capacity calculation, Discord
 integration, or destructive collapse. Phase names describe the schedule; they do not
 claim that a physical ship has spawned or that a portal currently works.
+
+See [Planet recipes and announcements](PLANETS.md) to add planets, customize terrain
+and day/night cycles, or edit the daily broadcasts.
 
 Existing SS14 presets and round flow are unchanged. Existing map persistence is not a
 complete solution for the planned persistent worlds and offline characters.
@@ -85,7 +89,8 @@ than infer actual ship state from this schedule.
 Initialize engine dependencies with `git submodule update --init --recursive`, then run:
 
 ```text
-dotnet test Content.Tests/Content.Tests.csproj --filter FullyQualifiedName~SectorCycleTest
+dotnet test Content.Tests/Content.Tests.csproj --filter FullyQualifiedName~Content.Tests.Server._Planet14
+dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --filter FullyQualifiedName~PlanetGenerationTest
 ```
 
 On a development server, check `help planet14_status` and `help planet14_start`.

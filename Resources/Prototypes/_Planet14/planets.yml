@@ -1,0 +1,62 @@
+# Copy a recipe, give it a unique id, and change biome/dayNight to add a new planet.
+# Durations and offsets are seconds of simulation time, independent of sector days.
+- type: planet14Planet
+  id: Planet14Starter
+  name: Basirath starter planet
+  biome: Planet14StarterTerrain
+  seed: 14
+  ambientLight: "#D8B059"
+  dayNight:
+    duration: 1800 # 30-minute sunrise-to-sunrise cycle
+    offset: 900 # Midday phase offset relative to the round clock
+    minLightLevel: 0.08
+    maxLightLevel: 3
+    clipLight: 1.25
+
+- type: planet14Planet
+  id: Planet14Barren
+  name: Basirath barren planet
+  biome: Asteroid
+  ambientLight: "#9AA7B5"
+  dayNight:
+    duration: 3600
+    offset: 1800
+    minLightLevel: 0.02
+
+# The last matching tile layer wins. Put fallback ground before terrain patches.
+# Higher noise thresholds produce sparser patches; lower frequency makes larger patches.
+- type: biomeTemplate
+  id: Planet14StarterTerrain
+  layers:
+  - !type:BiomeTileLayer
+    threshold: -1
+    tile: FloorPlanetGrass
+  - !type:BiomeTileLayer
+    threshold: 0.4
+    tile: FloorPlanetDirt
+    noise:
+      seed: 2
+      frequency: 0.04
+      noiseType: OpenSimplex2
+  - !type:BiomeEntityLayer
+    allowedTiles:
+    - FloorPlanetGrass
+    threshold: 0.75
+    noise:
+      seed: 0
+      frequency: 0.8
+      noiseType: OpenSimplex2
+    entities:
+    - FloraTree
+    - FloraTreeLarge
+  - !type:BiomeEntityLayer
+    allowedTiles:
+    - FloorPlanetGrass
+    - FloorPlanetDirt
+    threshold: 0.85
+    noise:
+      seed: 1
+      frequency: 0.4
+      noiseType: OpenSimplex2
+    entities:
+    - FloraRockSolid

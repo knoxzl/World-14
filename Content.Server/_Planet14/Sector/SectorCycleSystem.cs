@@ -1,4 +1,5 @@
 using Content.Shared._Planet14;
+using Content.Server.Chat.Systems;
 using Robust.Shared.Configuration;
 using Robust.Shared.ContentPack;
 
@@ -12,6 +13,7 @@ public sealed partial class SectorCycleSystem : EntitySystem
 {
     [Dependency] private IConfigurationManager _config = default!;
     [Dependency] private IResourceManager _resources = default!;
+    [Dependency] private ChatSystem _chat = default!;
 
     private SectorCycle? _cycle;
     private SectorSnapshot? _previous;
@@ -97,6 +99,9 @@ public sealed partial class SectorCycleSystem : EntitySystem
         var previous = _previous;
         _previous = snapshot;
 
+        if ((previous == null || previous.Value.Day != snapshot.Day) && snapshot.Phase != SectorPhase.Collapsed)
+            AnnounceDay(snapshot.Day);
+
         // Startup publishes only the current phase, not a backlog of obsolete transitions.
         if (previous == null || previous.Value.Day != snapshot.Day ||
             previous.Value.BlackSpace != snapshot.BlackSpace || previous.Value.Phase != snapshot.Phase)
@@ -110,6 +115,27 @@ public sealed partial class SectorCycleSystem : EntitySystem
             snapshot.PulseNumber > previous.Value.PulseNumber)
         {
             RaiseLocalEvent(new BlackSpacePulseEvent(snapshot.PulseNumber));
+        }
+    }
+
+    private void AnnounceDay(int day)
+    {
+        if (_cycle == null || !_config.GetCVar(Planet14CVars.DayAnnouncements))
+            return;
+
+        try
+        {
+            if (!SectorDayAnnouncementStore.TryMarkSent(_resources.UserData, _cycle.StartedAtUtc, day))
+                return;
+
+            _chat.DispatchGlobalAnnouncement(
+                Loc.GetString($"planet14-nt-day-{day}", ("day", day), ("daysUntilArrival", Math.Max(0, 14 - day))),
+                Loc.GetString("planet14-nt-announcer"),
+                playSound: _config.GetCVar(Planet14CVars.DayAnnouncementSound));
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Could not broadcast the Basirath day {day} announcement: {e}");
         }
     }
 }

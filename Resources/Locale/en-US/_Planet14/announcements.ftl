@@ -1,0 +1,16 @@
+planet14-nt-announcer = Nanotrasen Sector Relief
+planet14-nt-day-1 = DAY 1 — Hold on, survivors. We are on the way! Remember: DO NOT ENTER BLACK SPACE. It is extremely unstable. Our evacuation ship is scheduled to arrive on DAY 14. Good luck.
+planet14-nt-day-2 = DAY 2 — Keep your shelters supplied and look after one another. Black Space remains unstable. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-3 = DAY 3 — Build, prepare, survive. Do not attempt Black Space entry while the overlap remains unstable. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-4 = DAY 4 — The Black Space overlap has stabilized. Return travel is currently possible. Expeditions remain dangerous; keep a way home. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-5 = DAY 5 — Your preparations matter. Gather supplies, maintain your ships, and plan your route to Trispic. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-6 = DAY 6 — Basirath remains under quarantine. Keep your ships operational and your crews supplied. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-7 = DAY 7 — We have not forgotten you. Continue preparations for the Trispic evacuation. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-8 = DAY 8 — Sector instability is increasing. Avoid unnecessary risks and protect your transport. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-9 = DAY 9 — Black Space return travel is still possible, but the window is closing. Do not delay your preparations. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-10 = DAY 10 — Prepare to withdraw your Black Space expeditions. Return travel closes at the start of DAY 12. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-11 = DAY 11 — FINAL WARNING: leave Black Space before DAY 12 begins. Anyone remaining beyond the overlap will be trapped. Evacuation arrival is {$daysUntilArrival} days away.
+planet14-nt-day-12 = DAY 12 — Black Space return travel is now CLOSED. Do not enter: you will not be able to return. Prepare for evacuation on Trispic in {$daysUntilArrival} days.
+planet14-nt-day-13 = DAY 13 — Evacuation arrival is scheduled for tomorrow on Trispic, at the sector's centre. Pod capacity is limited. Prepare your route and await further instructions.
+planet14-nt-day-14 = DAY 14 — Evacuation is due today on Trispic. Await boarding instructions. The planned shield charge takes two hours before doors open. Pods are limited; stay alert.
+planet14-nt-day-15 = DAY 15 — The evacuation window has passed. No further transports are scheduled. This is Basirath's final day. To those still listening: may you find peace.

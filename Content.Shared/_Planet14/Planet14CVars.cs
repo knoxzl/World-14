@@ -12,4 +12,10 @@ public sealed class Planet14CVars
     /// <summary>Real seconds per sector day, captured when a new cycle starts. 86400 in production.</summary>
     public static readonly CVarDef<int> DayLengthSeconds =
         CVarDef.Create("planet14.day_length_seconds", 86400, CVar.SERVERONLY);
+
+    public static readonly CVarDef<bool> DayAnnouncements =
+        CVarDef.Create("planet14.day_announcements", true, CVar.SERVERONLY);
+
+    public static readonly CVarDef<bool> DayAnnouncementSound =
+        CVarDef.Create("planet14.day_announcement_sound", true, CVar.SERVERONLY);
 }
