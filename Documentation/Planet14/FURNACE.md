@@ -9,8 +9,11 @@ It accepts up to 50 coal and 100 ore pieces, leaving excess in your hand.
 It automatically starts when it has both fuel and ore, without electricity.
 Examine it to see stored coal, queued ore, and remaining smelts from burning fuel.
 
-Each ore piece takes 20 seconds of simulation time and produces one refined
-piece on the floor beside the furnace. One coal smelts five ore pieces.
+Each batch takes 20 seconds of simulation time and smelts up to 15 pieces of
+one ore type, dropping one refined piece per ore on the floor beside the furnace.
+Smaller batches run when less ore or fuel is available. One coal smelts five ore
+pieces, so a full batch costs three coal. Batch contents and fuel are reserved
+when processing starts; loading more ore does not expand a running batch.
 It stops when it runs out of fuel or ore, retaining partial progress and unused
 fuel capacity. Pausing the map pauses smelting. Destroying the furnace loses
 its internal supplies.
@@ -26,9 +29,10 @@ its internal supplies.
 
 Edit `Resources/Prototypes/_Planet14/stone_furnace.yml` to change the construction
 cost or the `StoneFurnace` component's `recipes`, `smeltSeconds`, `itemsPerCoal`,
-`fuelCapacity`, and `oreCapacity` settings. Recipe outputs must be single-piece
+`batchSize`, `fuelCapacity`, and `oreCapacity` settings. Recipe outputs must be single-piece
 entity prototypes.
 
 The furnace uses Knoxzl's 64×64 sprites. The fire animation repeats frames
 1, 2, 3, 2, then returns to 1, at 0.2 seconds per frame. It is visible only
-while smelting.
+while smelting. A warm orange light and the campfire ambience also run only
+while the furnace is working.

@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Server.Audio;
 using Content.Shared._Planet14;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
@@ -13,6 +14,8 @@ public sealed partial class StoneFurnaceSystem : EntitySystem
     [Dependency] private SharedStackSystem _stacks = default!;
     [Dependency] private SharedAppearanceSystem _appearance = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private AmbientSoundSystem _ambient = default!;
+    [Dependency] private SharedPointLightSystem _lights = default!;
     private static readonly ProtoId<StackPrototype> CoalStack = "Coal";
 
     public override void Initialize()
@@ -45,7 +48,7 @@ public sealed partial class StoneFurnaceSystem : EntitySystem
         if (!fuel && !comp.Recipes.ContainsKey(item.Comp.StackTypeId))
             return false;
 
-        var space = fuel ? comp.FuelCapacity - comp.Coal : comp.OreCapacity - comp.Ores.Values.Sum();
+        var space = fuel ? comp.FuelCapacity - comp.Coal : comp.OreCapacity - comp.Ores.Values.Sum() - comp.BatchCount;
         amount = Math.Min(item.Comp.Count, Math.Max(0, space));
         if (amount == 0 || !_stacks.TryUse((item.Owner, item.Comp), amount))
             return false;
@@ -62,7 +65,7 @@ public sealed partial class StoneFurnaceSystem : EntitySystem
         if (!args.IsInDetailsRange)
             return;
         args.PushMarkup(Loc.GetString("planet14-furnace-status", ("coal", ent.Comp.Coal),
-            ("ore", ent.Comp.Ores.Values.Sum()), ("heat", ent.Comp.RemainingHeat)));
+            ("ore", ent.Comp.Ores.Values.Sum()), ("heat", ent.Comp.RemainingHeat), ("batch", ent.Comp.BatchCount)));
     }
 
     public override void Update(float frameTime)
@@ -73,32 +76,49 @@ public sealed partial class StoneFurnaceSystem : EntitySystem
             if (meta.EntityPaused)
                 continue;
 
-            var ore = comp.Ores.FirstOrDefault(pair => pair.Value > 0 && comp.Recipes.ContainsKey(pair.Key));
-            var burning = ore.Value > 0 && (comp.RemainingHeat > 0 || comp.Coal > 0);
-            _appearance.SetData(uid, StoneFurnaceVisuals.Burning, burning);
-            if (!burning)
-                continue;
-
-            if (comp.RemainingHeat <= 0)
+            if (comp.BatchCount == 0)
             {
-                comp.Coal--;
-                comp.RemainingHeat = Math.Max(1, comp.ItemsPerCoal);
+                var ore = comp.Ores.FirstOrDefault(pair => pair.Value > 0 && comp.Recipes.ContainsKey(pair.Key));
+                var perCoal = Math.Max(1, comp.ItemsPerCoal);
+                var count = Math.Min(Math.Max(1, comp.BatchSize), Math.Min(ore.Value,
+                    comp.RemainingHeat + comp.Coal * perCoal));
+                if (count > 0)
+                {
+                    // Reserve the entire batch and its fuel before starting the timer.
+                    var needed = Math.Max(0, count - comp.RemainingHeat);
+                    var coal = (needed + perCoal - 1) / perCoal;
+                    comp.Coal -= coal;
+                    comp.RemainingHeat += coal * perCoal - count;
+                    comp.BatchCount = count;
+                    comp.BatchOutput = comp.Recipes[ore.Key];
+                    if (ore.Value == count)
+                        comp.Ores.Remove(ore.Key);
+                    else
+                        comp.Ores[ore.Key] -= count;
+                }
             }
 
+            SetBurning(uid, comp.BatchCount > 0);
+            if (comp.BatchCount == 0)
+                continue;
             comp.Progress += frameTime;
             if (comp.Progress < Math.Max(1f, comp.SmeltSeconds))
                 continue;
 
-            // No catch-up burst after a slow frame: at most one item completes per update.
+            // Complete at most one batch per update, including after a slow frame.
             comp.Progress = 0;
-            comp.RemainingHeat--;
-            if (ore.Value == 1)
-                comp.Ores.Remove(ore.Key);
-            else
-                comp.Ores[ore.Key]--;
-            SpawnAtPosition(comp.Recipes[ore.Key], Transform(uid).Coordinates);
-            if (comp.Ores.Count == 0 || comp.RemainingHeat == 0 && comp.Coal == 0)
-                _appearance.SetData(uid, StoneFurnaceVisuals.Burning, false);
+            for (var i = 0; i < comp.BatchCount; i++)
+                SpawnAtPosition(comp.BatchOutput, Transform(uid).Coordinates);
+            comp.BatchCount = 0;
+            var canContinue = comp.Ores.Count > 0 && (comp.RemainingHeat > 0 || comp.Coal > 0);
+            SetBurning(uid, canContinue);
         }
+    }
+
+    private void SetBurning(EntityUid uid, bool burning)
+    {
+        _appearance.SetData(uid, StoneFurnaceVisuals.Burning, burning);
+        _lights.SetEnabled(uid, burning);
+        _ambient.SetAmbience(uid, burning);
     }
 }

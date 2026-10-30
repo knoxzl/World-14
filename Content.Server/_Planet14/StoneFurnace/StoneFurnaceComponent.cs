@@ -7,6 +7,9 @@ namespace Content.Server._Planet14.StoneFurnace;
 public sealed partial class StoneFurnaceComponent : Component
 {
     [DataField] public float SmeltSeconds = 20f;
+    [DataField] public int BatchSize = 15;
+    [DataField] public int BatchCount;
+    [DataField] public EntProtoId BatchOutput;
     [DataField] public int ItemsPerCoal = 5;
     [DataField] public int FuelCapacity = 50;
     [DataField] public int OreCapacity = 100;
