@@ -1,5 +1,6 @@
 #nullable enable
 using Content.Shared.CCVar;
+using Content.Shared._Planet14;
 
 namespace Content.IntegrationTests;
 
@@ -11,6 +12,8 @@ public static partial class PoolManager
     public static readonly (string cvar, string value)[] TestCvars =
     {
         // @formatter:off
+        // General integration tests must not create real-time sector cycles or broadcasts.
+        (Planet14CVars.Enabled.Name,          "false"),
         (CCVars.DatabaseSynchronous.Name,     "true"),
         (CCVars.DatabaseSnapshot.Name,        "true"),
         (CCVars.DatabaseSqliteDelay.Name,     "0"),

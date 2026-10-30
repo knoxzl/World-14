@@ -5,6 +5,7 @@ using Content.Server.Discord;
 using Content.Server.GameTicking.Events;
 using Content.Server.Roles;
 using Content.Shared.CCVar;
+using Content.Shared._Planet14;
 using Content.Shared.Database;
 using Content.Shared.GameTicking;
 using Content.Shared.GameTicking.Events;
@@ -72,6 +73,9 @@ public sealed partial class ServerGameTicker
     {
         if (Map.MapExists(DefaultMap))
             return;
+
+        if (Cfg.GetCVar(Planet14CVars.Enabled) && !DummyTicker)
+            SetGamePreset("Planet14");
 
         AddGamePresetRules();
 

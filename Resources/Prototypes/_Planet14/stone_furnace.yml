@@ -1,0 +1,79 @@
+- type: entity
+  parent: [BaseStructure, StructureHealthFurnitureStrong]
+  id: Planet14StoneFurnace
+  name: stone furnace
+  description: A simple coal-fired furnace. Feed it coal and raw ore; it smelts up to fifteen pieces at once in twenty seconds. One coal smelts five pieces.
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: _Planet14/Structures/stone_furnace.rsi
+    layers:
+    - state: furnace
+    - state: fire
+      map: [fire]
+      shader: unshaded
+      visible: false
+  - type: Appearance
+  - type: PointLight
+    enabled: false
+    radius: 4
+    energy: 2
+    color: "#FF8A35"
+  - type: AmbientSound
+    enabled: false
+    volume: -6
+    range: 5
+    sound:
+      path: /Audio/Ambience/Objects/fireplace.ogg
+  - type: GenericVisualizer
+    visuals:
+      enum.StoneFurnaceVisuals.Burning:
+        fire:
+          True: {visible: true}
+          False: {visible: false}
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape: !type:PhysShapeAabb
+          bounds: "-0.4,-0.4,0.4,0.4"
+        density: 200
+        mask: [MachineMask]
+        layer: [MachineLayer]
+  - type: StoneFurnace
+    batchSize: 15
+    recipes:
+      SteelOre: SheetSteel1
+      SpaceQuartz: SheetGlass1
+      GoldOre: IngotGold1
+      SilverOre: IngotSilver1
+      PlasmaOre: SheetPlasma1
+      UraniumOre: SheetUranium1
+  - type: Construction
+    graph: Planet14StoneFurnace
+    node: furnace
+
+- type: construction
+  parent: BaseStructureFullTile
+  id: Planet14StoneFurnace
+  graph: Planet14StoneFurnace
+  targetNode: furnace
+
+- type: constructionGraph
+  id: Planet14StoneFurnace
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: furnace
+      steps:
+      - material: SteelOre
+        amount: 30
+        doAfter: 5
+      - material: WoodPlank
+        amount: 15
+        doAfter: 3
+      - material: Coal
+        amount: 5
+        doAfter: 2
+  - node: furnace
+    entity: Planet14StoneFurnace
