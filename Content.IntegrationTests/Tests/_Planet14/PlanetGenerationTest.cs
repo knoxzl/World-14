@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Content.IntegrationTests.Fixtures;
 using Content.Server._Planet14.Planets;
 using Content.Server.Parallax;
@@ -11,11 +12,54 @@ using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Maths;
 using Robust.Shared.Localization;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._Planet14;
 
 public sealed class PlanetGenerationTest : GameTest
 {
+    [Test]
+    public async Task StarterMountainsAreSparseAndContainOrePockets()
+    {
+        await Server.WaitAssertion(() =>
+        {
+            var planets = SEntMan.System<Planet14PlanetSystem>();
+            Assert.That(planets.TryCreate("Planet14Starter", 14, out var map, out var message), Is.True, message);
+            var uid = SEntMan.System<SharedMapSystem>().GetMapOrInvalid(map);
+            try
+            {
+                var biome = SEntMan.GetComponent<BiomeComponent>(uid);
+                var generation = SEntMan.System<BiomeSystem>();
+                var mountains = 0;
+                var stone = 0;
+                var ores = new HashSet<string>();
+                for (var x = -64; x < 64; x++)
+                for (var y = -64; y < 64; y++)
+                {
+                    if (!generation.TryGetEntity(new Vector2i(x, y), biome,
+                            (Entity<MapGridComponent>?) null, out var entity) || !entity.StartsWith("WallRock"))
+                        continue;
+
+                    Assert.That(SProtoMan.HasIndex<EntityPrototype>(entity), Is.True);
+                    mountains++;
+                    if (entity == "WallRock")
+                        stone++;
+                    else
+                        ores.Add(entity);
+                }
+
+                Assert.That(mountains, Is.InRange(50, 1638), "Outcrops should occupy less than 10% of the sampled planet.");
+                Assert.That(stone, Is.GreaterThan(mountains / 2), "Most mountain tiles should be ordinary rock.");
+                Assert.That(ores, Is.EquivalentTo(new[] { "WallRockTin", "WallRockCoal", "WallRockQuartz" }));
+                TestContext.Out.WriteLine($"Starter mountains: {mountains}/16384 tiles, {stone} plain rock tiles.");
+            }
+            finally
+            {
+                SEntMan.DeleteEntity(uid);
+            }
+        });
+    }
+
     [TestCase("Planet14Starter", 14, 1800)]
     [TestCase("Planet14Barren", 1234, 3600)]
     public async Task RecipeCreatesPlanetWithConfiguredLighting(string recipe, int seed, int duration)

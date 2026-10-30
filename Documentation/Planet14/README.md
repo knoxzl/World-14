@@ -58,9 +58,10 @@ An explicit false in an older configuration still overrides the new default.
 Round-start and late-joining players spawn on the configured starter planet as Survivors,
 regardless of their old station job preferences. A clear arrival area prevents terrain
 objects from appearing inside freshly spawned players. The Survivor backpack contains
-gauze, bruise packs, ointment, a crowbar, wrench, screwdriver, wirecutters, welder,
-multitool, mining drill, a nutribrick, and water. Clothing, shoes, a PDA, and headset are
-also supplied. Edit `Resources/Prototypes/_Planet14/round.yml` to change the kit.
+a filled medkit, survival box, mining drill, nutribrick, water, machete, and flashlight.
+A filled utility belt supplies a crowbar, wrench, screwdriver, wirecutters, welder,
+and network configurator. Clothing, shoes, a PDA, and headset are also supplied.
+Edit `Resources/Prototypes/_Planet14/round.yml` to change the kit.
 
 The starter round uses a minimal station record solely for normal SS14 job/ID bookkeeping.
 It does not load the development station's cargo shuttles, wreck fields, or station event

@@ -72,7 +72,16 @@ for a permanently bright or dark world.
 
 Copy `Planet14StarterTerrain` in the example file and point your recipe's `biome` at
 the copied ID. No C# changes are needed. The example demonstrates a grass base, dirt
-patches, sparse trees, and sparse rocks.
+patches, sparse trees, sparse rocks, and occasional mineable mountains.
+
+The final `BiomeMetaLayer` in `Planet14StarterTerrain` masks the
+`Planet14StarterMountains` template into small outcrops. Its `threshold: 0.82`
+controls rarity (higher means fewer); `frequency: 0.065` controls footprint size
+(higher means smaller). Inside that template, ordinary `WallRock` is the fallback,
+with separate small pockets of `WallRockTin` (steel), `WallRockCoal`, and
+`WallRockQuartz` (glass). Raise an ore layer's threshold to make that resource rarer.
+The mountain mask confines every ore pocket to rock formations and takes precedence
+over trees. The round's reserved arrival clearing remains free of mountains.
 
 - `BiomeTileLayer` chooses ground tiles. The last matching tile layer wins, so put
   fallback ground first and terrain patches after it.

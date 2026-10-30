@@ -62,6 +62,7 @@
     back: Planet14SurvivorBackpack
     id: PassengerPDA
     ears: ClothingHeadsetGrey
+    belt: ClothingBeltUtilityFilled
 
 - type: entity
   id: Planet14SurvivorBackpack
@@ -74,15 +75,10 @@
     - 0,0,7,4
   - type: StorageFill
     contents:
-    - id: Gauze
-    - id: Brutepack
-    - id: Ointment
-    - id: Crowbar
-    - id: Wrench
-    - id: Screwdriver
-    - id: Wirecutter
-    - id: Welder
-    - id: Multitool
+    - id: MedkitFilled
+    - id: BoxSurvival
     - id: MiningDrill
     - id: FoodSnackNutribrick
     - id: DrinkWaterBottleFull
+    - id: Machete
+    - id: FlashlightLantern

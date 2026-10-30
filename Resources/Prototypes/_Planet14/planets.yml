@@ -60,3 +60,48 @@
       noiseType: OpenSimplex2
     entities:
     - FloraRockSolid
+  # Small, occasional mountains. This mask confines both rock and ore to outcrops.
+  - !type:BiomeMetaLayer
+    template: Planet14StarterMountains
+    threshold: 0.82
+    noise:
+      seed: 7
+      frequency: 0.065
+      noiseType: OpenSimplex2
+
+- type: biomeTemplate
+  id: Planet14StarterMountains
+  layers:
+  - !type:BiomeEntityLayer
+    allowedTiles: [FloorPlanetGrass, FloorPlanetDirt]
+    threshold: -1
+    entities:
+    - WallRock
+  # Separate noise makes connected ore pockets within the mountain footprint.
+  - !type:BiomeEntityLayer
+    allowedTiles: [FloorPlanetGrass, FloorPlanetDirt]
+    threshold: 0.6
+    noise:
+      seed: 8
+      frequency: 0.23
+      noiseType: OpenSimplex2
+    entities:
+    - WallRockTin # Smelts into steel.
+  - !type:BiomeEntityLayer
+    allowedTiles: [FloorPlanetGrass, FloorPlanetDirt]
+    threshold: 0.65
+    noise:
+      seed: 9
+      frequency: 0.23
+      noiseType: OpenSimplex2
+    entities:
+    - WallRockCoal
+  - !type:BiomeEntityLayer
+    allowedTiles: [FloorPlanetGrass, FloorPlanetDirt]
+    threshold: 0.7
+    noise:
+      seed: 10
+      frequency: 0.23
+      noiseType: OpenSimplex2
+    entities:
+    - WallRockQuartz # Smelts into glass.

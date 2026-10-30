@@ -61,8 +61,17 @@ public sealed class SurvivorRoundTest : GameTest
                 .Select(e => SEntMan.GetComponent<MetaDataComponent>(e).EntityPrototype!.ID).ToArray();
             Assert.That(contents, Is.SupersetOf(new[]
             {
-                "Gauze", "Brutepack", "Ointment", "Crowbar", "Wrench", "Screwdriver",
-                "Wirecutter", "Welder", "Multitool", "MiningDrill", "FoodSnackNutribrick", "DrinkWaterBottleFull",
+                "MedkitFilled", "BoxSurvival", "MiningDrill", "FoodSnackNutribrick",
+                "DrinkWaterBottleFull", "Machete", "FlashlightLantern",
+            }));
+            Assert.That(inventory.TryGetSlotEntity(mob, "belt", out var belt), Is.True);
+            Assert.That(SEntMan.GetComponent<MetaDataComponent>(belt!.Value).EntityPrototype!.ID,
+                Is.EqualTo("ClothingBeltUtilityFilled"));
+            var tools = SEntMan.GetComponent<StorageComponent>(belt.Value).Container.ContainedEntities
+                .Select(e => SEntMan.GetComponent<MetaDataComponent>(e).EntityPrototype!.ID).ToArray();
+            Assert.That(tools, Is.SupersetOf(new[]
+            {
+                "Crowbar", "Wrench", "Screwdriver", "Wirecutter", "Welder", "NetworkConfigurator",
             }));
             SEntMan.System<SharedTransformSystem>().SetCoordinates(mob,
                 new EntityCoordinates(transform.MapUid!.Value, new Vector2(0.5f, 0.5f)));
