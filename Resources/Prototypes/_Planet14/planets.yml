@@ -3,6 +3,9 @@
 - type: planet14Planet
   id: Planet14Starter
   name: Basirath starter planet
+  biomeName: Temperate grasslands
+  description: A quiet refuge of forests and mineral outcrops. Build a future while there is still time.
+  spacePosition: 0,0
   biome: Planet14StarterTerrain
   seed: 14
   ambientLight: "#D8B059"
@@ -16,6 +19,9 @@
 - type: planet14Planet
   id: Planet14Barren
   name: Basirath barren planet
+  biomeName: Barren asteroid terrain
+  description: A silent rocky world rich in salvage possibilities, far from the comforts of home.
+  spacePosition: 600,300
   biome: Asteroid
   ambientLight: "#9AA7B5"
   dayNight:

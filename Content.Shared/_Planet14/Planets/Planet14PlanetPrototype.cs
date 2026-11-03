@@ -1,3 +1,4 @@
+using System.Numerics;
 using Content.Shared.Parallax.Biomes;
 using Robust.Shared.Prototypes;
 
@@ -15,6 +16,9 @@ public sealed partial class Planet14PlanetPrototype : IPrototype
     [DataField] public bool Gravity = true;
     [DataField] public Color AmbientLight = Color.FromHex("#D8B059");
     [DataField] public PlanetDayNightSettings DayNight = new();
+    [DataField] public string Description = "An unexplored world in the dying Basirath sector.";
+    [DataField] public string BiomeName = "Unknown";
+    [DataField] public Vector2 SpacePosition;
 }
 
 /// <summary>Uses SS14's existing light curve and synchronized sun shadows.</summary>

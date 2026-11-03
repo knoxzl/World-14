@@ -2,6 +2,7 @@ using Content.Server.Parallax;
 using Content.Shared._Planet14.Planets;
 using Content.Shared.Gravity;
 using Content.Shared.Light.Components;
+using Content.Server._Planet14.Space;
 using Robust.Shared.Map;
 
 namespace Content.Server._Planet14.Planets;
@@ -62,6 +63,7 @@ public sealed partial class Planet14PlanetSystem : EntitySystem
             throw new ArgumentException($"Invalid planet recipe {planet.ID}");
 
         _metadata.SetEntityName(uid, planet.Name);
+        EnsureComp<PlanetSurfaceComponent>(uid).Recipe = planet.ID;
         _biomes.EnsurePlanet(uid, ProtoMan.Index(planet.Biome), seed, mapLight: planet.AmbientLight);
         var gravity = Comp<GravityComponent>(uid);
         gravity.Enabled = planet.Gravity;

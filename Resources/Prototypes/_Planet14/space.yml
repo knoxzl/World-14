@@ -1,0 +1,50 @@
+- type: planet14Sector
+  id: Basirath
+  planets: [Planet14Starter, Planet14Barren]
+  meteorMinSeconds: 1800
+  meteorMaxSeconds: 3600
+  wreckChance: 0.12
+  asteroidChance: 0.3
+  maxChunks: 256
+  maxMeteorRocks: 4096
+
+- type: tile
+  id: Planet14OrbitalVoid
+  parent: Space
+
+- type: entity
+  id: Planet14PlanetVisual
+  name: planet
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: _Planet14/Space/planet.rsi
+    state: planet
+    scale: 5,5
+    drawdepth: BelowFloor
+    noRot: true
+
+# Visual meteors cross the sky before their mineral deposits settle.
+- type: entity
+  id: Planet14FallingMeteor
+  categories: [HideSpawnMenu]
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/meteor.rsi
+    state: small
+  - type: Physics
+    bodyType: Dynamic
+    bodyStatus: InAir
+  - type: Fixtures
+    fixtures:
+      meteor:
+        shape: !type:PhysShapeCircle
+          radius: 0.2
+        density: 10
+        hard: false
+        mask: []
+        layer: []
+  - type: TileFrictionModifier
+    modifier: 0
+  - type: TimedDespawn
+    lifetime: 2

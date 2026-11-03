@@ -12,6 +12,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Random;
 using Robust.Shared.Prototypes;
+using Content.Server._Planet14.Space;
 
 namespace Content.Server._Planet14.Planets;
 
@@ -78,6 +79,7 @@ public sealed partial class Planet14RoundSystem : EntitySystem
         var recipe = ProtoMan.Index<Planet14PlanetPrototype>(_config.GetCVar(Planet14CVars.StarterPlanet));
         _planets.ApplyRecipe(uid, recipe);
         _starterMap = uid;
+        EntityManager.System<SectorSpaceSystem>().StartSector(uid);
 
         // A small, permanently clear arrival area prevents trees or rocks spawning inside survivors.
         var tiles = new List<(Vector2i, Tile)>();
