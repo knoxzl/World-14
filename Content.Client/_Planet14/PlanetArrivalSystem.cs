@@ -69,7 +69,7 @@ public sealed class PlanetArrivalOverlay : Overlay
         var titleHeight = _title.GetLineHeight(1) + 7;
         var bodyHeight = _body.GetLineHeight(1) + 7;
         var height = 56 + title.Count * titleHeight + (subtitle.Count + description.Count) * bodyHeight + 24;
-        var top = (args.Viewport.Size.Y - height) / 2f + (1 - alpha) * 15;
+        var top = 36 - (1 - alpha) * 12;
         var handle = args.ScreenHandle;
         handle.DrawRect(new UIBox2(left, top, left + width, top + height), Color.Black.WithAlpha(alpha * 0.88f));
         handle.DrawRect(new UIBox2(left, top, left + width, top + 3), Color.LightSkyBlue.WithAlpha(alpha));

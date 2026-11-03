@@ -136,9 +136,17 @@ public sealed class SectorSpaceTest : GameTest
 
             var asteroid = sector.CreateAsteroid(new Vector2(2000, 2000));
             Assert.That(shuttles.GetIFFLabel(asteroid), Is.Null);
+            Assert.That(shuttles.CanDraw(asteroid), Is.False, "Asteroid grid outlines must be hidden from scanning.");
             Assert.That(SEntMan.GetComponent<MapGridComponent>(asteroid).LocalAABB.Width, Is.GreaterThan(1));
+            var carpBefore = SEntMan.EntityQuery<MetaDataComponent>().Count(e => e.EntityPrototype?.ID == "MobCarp");
+            var oldCarpChance = sector.Settings.WreckCarpChance;
+            sector.Settings.WreckCarpChance = 1;
             var wreck = sector.CreateWreck(new Vector2(2500, 2000));
+            sector.Settings.WreckCarpChance = oldCarpChance;
+            var carpAfter = SEntMan.EntityQuery<MetaDataComponent>().Count(e => e.EntityPrototype?.ID == "MobCarp");
+            Assert.That(carpAfter - carpBefore, Is.InRange(1, 2), "An infested wreck should have one or two space carp.");
             Assert.That(shuttles.GetIFFLabel(wreck), Is.Null);
+            Assert.That(shuttles.CanDraw(wreck), Is.False, "Wreck grid outlines must be hidden from scanning.");
             Assert.That(SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB.Width, Is.GreaterThanOrEqualTo(11));
             var wreckEntities = SEntMan.EntityQuery<MetaDataComponent, TransformComponent>()
                 .Where(e => e.Item2.GridUid == wreck).Select(e => e.Item1.EntityPrototype?.ID).ToArray();
@@ -149,9 +157,12 @@ public sealed class SectorSpaceTest : GameTest
             Assert.That(wreckEntities, Does.Contain("WallSolid"));
             Assert.That(wreckEntities, Does.Contain("Girder"));
             Assert.That(wreckEntities, Does.Contain("GrilleBroken"));
-            Assert.That(SEntMan.System<Content.Server.Decals.DecalSystem>()
-                .GetDecalsIntersecting(wreck, SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB).Count,
-                Is.GreaterThan(0));
+            var wreckDecals = SEntMan.System<Content.Server.Decals.DecalSystem>()
+                .GetDecalsIntersecting(wreck, SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB)
+                .Select(d => d.Decal).ToArray();
+            Assert.That(wreckDecals.Any(d => d.Id.StartsWith("burnt")), Is.True);
+            Assert.That(wreckDecals.Any(d => d.Id == "splatter" && d.Color == Color.FromHex("#990000BF")), Is.True);
+            Assert.That(wreckDecals.Any(d => d.Id == "splatter" && d.Color == Color.FromHex("#75FF369F")), Is.True);
             var deposited = sector.DepositMeteor(surface, new Vector2(8000, 8000));
             Assert.That(deposited, Is.GreaterThan(0));
             Assert.That(Enumerable.Range(-1, 3).Any(x => Enumerable.Range(-1, 3).Any(y =>

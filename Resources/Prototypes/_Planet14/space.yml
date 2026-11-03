@@ -7,6 +7,7 @@
   asteroidChance: 0.3
   maxChunks: 256
   maxMeteorRocks: 4096
+  wreckCarpChance: 0.3
 
 - type: tile
   id: Planet14OrbitalVoid

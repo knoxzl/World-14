@@ -13,4 +13,5 @@ public sealed partial class Planet14SectorPrototype : IPrototype
     [DataField] public float AsteroidChance = 0.3f;
     [DataField] public int MaxChunks = 256;
     [DataField] public int MaxMeteorRocks = 4096;
+    [DataField] public float WreckCarpChance = 0.3f;
 }

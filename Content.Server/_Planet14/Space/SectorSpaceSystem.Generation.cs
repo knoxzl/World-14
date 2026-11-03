@@ -19,6 +19,7 @@ public sealed partial class SectorSpaceSystem
     private static readonly EntProtoId[] WreckSalvage = ["PartRodMetal10", "SheetSteel10", "CableApcStack10", "CableMVStack1", "CableHVStack1", "Crowbar", "Wrench", "Screwdriver", "Gauze", "FoodSnackNutribrick"];
     private static readonly EntProtoId[] WreckStructures = ["WallSolid", "WallSolid", "WallSolid", "Girder", "Grille", "GrilleBroken"];
     private static readonly EntProtoId[] WreckCrates = ["CrateEngineeringToolbox", "CrateMedicalSupplies", "CrateEmergencyEVA"];
+    private static readonly EntProtoId WreckCarp = "MobCarp";
     [Dependency] private DecalSystem _decals = default!;
     private readonly List<(EntityUid Surface, Vector2 Centre, int Delay)> _impacts = new();
 
@@ -56,7 +57,7 @@ public sealed partial class SectorSpaceSystem
         RemComp<ShuttleComponent>(grid);
         _physics.SetBodyType(grid, BodyType.Static);
         EnsureComp<IFFComponent>(grid);
-        _shuttles.AddIFFFlag(grid, IFFFlags.HideLabel);
+        _shuttles.AddIFFFlag(grid, IFFFlags.Hide);
         return grid;
     }
 
@@ -72,6 +73,12 @@ public sealed partial class SectorSpaceSystem
         for (var y = -halfHeight; y <= halfHeight; y++)
         {
             var edge = Math.Abs(x) == halfWidth || Math.Abs(y) == halfHeight;
+            if (y == halfHeight && x >= -2 && x <= 1)
+            {
+                // Reserve these cells for the four distinct damaged structure types below.
+                _maps.SetTile(grid, new Vector2i(x, y), new Tile(_tiles["Plating"].TileId));
+                continue;
+            }
             if (y != 0 && _random.Prob(edge ? 0.22f : 0.08f))
                 continue;
             var tile = _random.Prob(0.15f) ? "Lattice" : _random.Prob(0.4f) ? "Plating" : "FloorSteel";
@@ -101,19 +108,30 @@ public sealed partial class SectorSpaceSystem
             }
         }
         _random.Shuffle(free);
-        var lootCount = _random.Next(8, 17);
+        var lootCount = Math.Min(_random.Next(8, 17), Math.Max(0, free.Count - WreckCrates.Length));
         for (var i = 0; i < lootCount && i < free.Count; i++)
             SpawnAtPosition(_random.Pick(WreckSalvage), new EntityCoordinates(grid, free[i]));
         for (var i = 0; i < WreckCrates.Length && lootCount + i < free.Count; i++)
-            SpawnAtPosition(WreckCrates[i], new EntityCoordinates(grid, free[lootCount + i]));
-        for (var i = 0; i < Math.Min(12, free.Count); i++)
+            SpawnAttachedTo(WreckCrates[i], new EntityCoordinates(grid, free[lootCount + i]));
+        var decorationCells = free.Skip(lootCount + WreckCrates.Length)
+            .Where(p => _maps.GetTileRef(grid, grid.Comp, new EntityCoordinates(grid, p)).Tile.TypeId != _tiles["Lattice"].TileId)
+            .Take(24).ToArray();
+        for (var i = 0; i < decorationCells.Length; i++)
         {
-            var decal = i % 3 == 0 ? "danger" : i % 3 == 1 ? "burnt1" : "burnt2";
-            _decals.TryAddDecal(decal, new EntityCoordinates(grid, free[i] - new Vector2(0.5f)), out _,
+            var decal = i % 5 == 0 ? "danger" : i % 5 == 1 ? "burnt1" : i % 5 == 2 ? "burnt2" : "splatter";
+            Color? tint = i % 5 == 3 ? Color.FromHex("#990000BF") : i % 5 == 4 ? Color.FromHex("#75FF369F") : null;
+            _decals.TryAddDecal(decal, new EntityCoordinates(grid, decorationCells[i] - new Vector2(0.5f)), out _, color: tint,
                 rotation: _random.NextAngle(), cleanable: true);
         }
         EnsureComp<IFFComponent>(grid);
-        _shuttles.AddIFFFlag(grid, IFFFlags.HideLabel);
+        _shuttles.AddIFFFlag(grid, IFFFlags.Hide);
+        if (_random.Prob(Settings.WreckCarpChance))
+        {
+            var count = _random.Next(1, 3);
+            for (var i = 0; i < count; i++)
+                SpawnAtPosition(WreckCarp, new EntityCoordinates(SpaceMap!.Value,
+                    position + _random.NextVector2(halfWidth + 4, halfWidth + 10)));
+        }
         return grid;
     }
 

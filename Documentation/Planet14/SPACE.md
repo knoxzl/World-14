@@ -31,7 +31,7 @@ physical collision, so ships can fly over them without hiding ship flooring. The
 blue IFF labels use the planet recipe's name. Replace the image in
 `Resources/Textures/_Planet14/Space/planet.rsi/` when final planet sprites are ready.
 
-Every entry into space or a registered planet shows a seven-second centred
+Every entry into space or a registered planet shows a seven-second top-centred
 banner with a short fade and slide, the Press Start 2P pixel font, measured line
 spacing, wrapping, and a panel sized to its content. Planet banners show the name, biome name and
 description. Space warns that it is cold, airless, and requires a spacesuit.
@@ -59,8 +59,13 @@ Space is divided into 256×256 exploration chunks. Each chunk is rolled once:
 asteroid. Most chunks are empty. Wrecks generate rooms and corridors with damaged
 flooring, plating, lattice, wall sections, girders, grilles, broken grilles,
 graffiti, burns, scattered salvage and closed supply crates. Asteroids supply
-common ores. Debris is kept away from planet markers; neither wrecks nor
-asteroids broadcast IFF labels.
+common ores. Debris is kept away from planet markers; wreck and asteroid grid
+outlines and labels are hidden from scanner displays. Both remain visible in the
+world and can still be collided with or explored.
+
+Wreck floors carry visible burns, blood spatters and green chemical stains away
+from loot piles. These stains are decorative. By default, 30% of wrecks have
+one or two hostile space carp nearby; `wreckCarpChance` controls this chance.
 
 An initial 5×5 area is generated at round setup. More chunks are generated around
 players exploring space, up to `maxChunks` (default 256), to bound generation cost.
