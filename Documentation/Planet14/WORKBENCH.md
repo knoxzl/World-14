@@ -6,6 +6,8 @@ recipes. It needs no electricity. A connected, living player must remain within
 three tiles of its centre for work to progress. Anyone nearby can supervise it;
 leaving pauses the current item and returning resumes it without consuming more
 materials. Ghosts, dead bodies, and disconnected characters do not supervise work.
+The fabricator sound loops during attended crafting, stops while work is paused,
+and resumes when someone returns. It also stops when the crafting queue finishes.
 
 Basic tools take 25–45 seconds each. LV, MV and HV cable take 10 seconds per piece.
 The bench also makes a circuit imprinter board (120 seconds), manipulators

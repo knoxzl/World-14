@@ -1,4 +1,6 @@
 using Content.Server.Lathe;
+using Content.Server.Audio;
+using Content.Shared.Lathe;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Robust.Shared.Player;
@@ -8,6 +10,7 @@ namespace Content.Server._Planet14.Workbench;
 public sealed partial class ScrapWorkbenchSystem : EntitySystem
 {
     [Dependency] private SharedTransformSystem _transform = default!;
+    [Dependency] private AmbientSoundSystem _ambient = default!;
 
     public override void Initialize()
     {
@@ -16,8 +19,20 @@ public sealed partial class ScrapWorkbenchSystem : EntitySystem
 
     private void OnProgress(Entity<ScrapWorkbenchComponent> ent, ref LatheProgressAttemptEvent args)
     {
-        if (!IsAttended(ent))
+        var attended = IsAttended(ent);
+        _ambient.SetAmbience(ent.Owner, attended);
+        if (!attended)
             args.Cancelled = true;
+    }
+
+    public override void Update(float frameTime)
+    {
+        var benches = EntityQueryEnumerator<ScrapWorkbenchComponent, LatheComponent>();
+        while (benches.MoveNext(out var uid, out _, out var lathe))
+        {
+            if (lathe.CurrentRecipe == null)
+                _ambient.SetAmbience(uid, false);
+        }
     }
 
     public bool IsAttended(Entity<ScrapWorkbenchComponent> ent)
