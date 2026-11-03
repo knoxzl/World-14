@@ -1,0 +1,181 @@
+- type: entity
+  parent: [BaseStructure, StructureHealthFurnitureStrong]
+  id: Planet14ScrapWorkbench
+  name: scrap workbench
+  description: A rough hand-operated workbench. Load steel, glass and wood, then choose a recipe. A living player must stay within three tiles for crafting to progress. Requires no electricity.
+  components:
+  - type: Sprite
+    sprite: _Planet14/Structures/scrap_workbench.rsi
+    state: workbench
+    noRot: true
+  - type: Appearance
+  - type: ScrapWorkbench
+    attendanceRange: 3
+  - type: Lathe
+    staticPacks: [Planet14ScrapWorkbench]
+  - type: MaterialStorage
+    whitelist:
+      tags: [Sheet, RawMaterial, Ingot]
+  - type: ActivatableUI
+    key: enum.LatheUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.LatheUiKey.Key:
+        type: LatheBoundUserInterface
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape: !type:PhysShapeAabb
+          bounds: "-0.4,-0.3,0.4,0.3"
+        density: 80
+        mask: [TableMask]
+        layer: [TableLayer]
+  - type: Construction
+    graph: Planet14ScrapWorkbench
+    node: workbench
+
+- type: construction
+  parent: BaseStructureFullTile
+  id: Planet14ScrapWorkbench
+  graph: Planet14ScrapWorkbench
+  targetNode: workbench
+
+- type: constructionGraph
+  id: Planet14ScrapWorkbench
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: workbench
+      steps:
+      - material: WoodPlank
+        amount: 25
+        doAfter: 5
+      - material: Steel
+        amount: 10
+        doAfter: 3
+  - node: workbench
+    entity: Planet14ScrapWorkbench
+
+- type: latheRecipePack
+  id: Planet14ScrapWorkbench
+  recipes:
+  - Planet14BenchCrowbar
+  - Planet14BenchWrench
+  - Planet14BenchScrewdriver
+  - Planet14BenchWirecutter
+  - Planet14BenchWelder
+  - Planet14BenchMultitool
+  - Planet14BenchPickaxe
+  - Planet14BenchShovel
+  - Planet14BenchLVWire
+  - Planet14BenchMVWire
+  - Planet14BenchHVWire
+  - Planet14BenchPrinterBoard
+  - Planet14BenchManipulator
+  - Planet14BenchBeaker
+
+- type: latheRecipe
+  abstract: true
+  id: Planet14BenchTool
+  categories: [Tools]
+  completetime: 25
+  materials:
+    Steel: 300
+    Wood: 100
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchCrowbar
+  result: Crowbar
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchWrench
+  result: Wrench
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchScrewdriver
+  result: Screwdriver
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchWirecutter
+  result: Wirecutter
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchWelder
+  result: Welder
+  completetime: 45
+  materials:
+    Steel: 600
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchMultitool
+  result: Multitool
+  completetime: 45
+  materials:
+    Steel: 400
+    Glass: 300
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchPickaxe
+  result: Pickaxe
+  completetime: 40
+  materials:
+    Steel: 1200
+    Wood: 500
+
+- type: latheRecipe
+  parent: Planet14BenchTool
+  id: Planet14BenchShovel
+  result: Shovel
+
+- type: latheRecipe
+  id: Planet14BenchLVWire
+  result: CableApcStack1
+  categories: [Parts]
+  completetime: 10
+  materials:
+    Steel: 50
+
+- type: latheRecipe
+  parent: Planet14BenchLVWire
+  id: Planet14BenchMVWire
+  result: CableMVStack1
+
+- type: latheRecipe
+  parent: Planet14BenchLVWire
+  id: Planet14BenchHVWire
+  result: CableHVStack1
+
+- type: latheRecipe
+  id: Planet14BenchPrinterBoard
+  result: CircuitImprinterMachineCircuitboard
+  categories: [Parts]
+  completetime: 120
+  materials:
+    Steel: 3000
+    Glass: 2000
+    Wood: 500
+
+- type: latheRecipe
+  id: Planet14BenchManipulator
+  result: MicroManipulatorStockPart
+  categories: [Parts]
+  completetime: 40
+  materials:
+    Steel: 300
+    Glass: 200
+
+- type: latheRecipe
+  id: Planet14BenchBeaker
+  result: Beaker
+  categories: [Parts]
+  completetime: 30
+  materials:
+    Glass: 200
