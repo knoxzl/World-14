@@ -16,8 +16,16 @@ Use the alternative actions on your shuttle console (right-click menu):
   and other ships. It preserves buildings and avoids natural obstacles already
   generated there. Docked ships and ships currently in FTL cannot change altitude.
 
+The normal FTL console also requires the ship's centre to be within 20 tiles of
+a planet's orbital marker before FTL to that surface is allowed. Departures from
+a surface use that planet's fixed orbital position as the range origin on the
+space map, including the displayed range bubble and map centring. Travelling far
+across the surface cannot extend the ship's reach in space. Direct FTL between
+different planetary surfaces is blocked; travel through sector space first.
+
 The temporary planet artwork is a 64×64 sprite scaled to **10×10 world tiles**.
-Markers have no physical collision, so ships can fly over them. Their names and
+Markers use transparent backing tiles and render below floors. They have no
+physical collision, so ships can fly over them without hiding ship flooring. Their names and
 blue IFF labels use the planet recipe's name. Replace the image in
 `Resources/Textures/_Planet14/Space/planet.rsi/` when final planet sprites are ready.
 

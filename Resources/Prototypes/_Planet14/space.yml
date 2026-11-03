@@ -11,6 +11,7 @@
 - type: tile
   id: Planet14OrbitalVoid
   parent: Space
+  sprite: /Textures/_Planet14/Space/orbital_void.png
 
 - type: entity
   id: Planet14PlanetVisual
@@ -21,7 +22,7 @@
     sprite: _Planet14/Space/planet.rsi
     state: planet
     scale: 5,5
-    drawdepth: BelowFloor
+    drawdepth: -1000
     noRot: true
 
 # Visual meteors cross the sky before their mineral deposits settle.

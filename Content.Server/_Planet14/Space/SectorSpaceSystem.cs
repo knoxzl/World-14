@@ -17,6 +17,7 @@ using Content.Shared.Verbs;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics;
+using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -110,6 +111,12 @@ public sealed partial class SectorSpaceSystem : EntitySystem
         _shuttles.SetIFFColor(grid, Color.CornflowerBlue);
         _metadata.SetEntityName(grid, recipe.Name);
         EnsureComp<PlanetMarkerComponent>(grid).Surface = surface;
+        EnsureComp<Planet14OrbitMarkerComponent>(grid);
+        var orbit = EnsureComp<Planet14OrbitComponent>(surface);
+        orbit.SpaceMap = GetNetEntity(space);
+        orbit.Position = position;
+        Dirty(surface, orbit);
+        _shuttles.TryAddFTLDestination(Transform(surface).MapID, true, false, false, out _);
         SpawnAttachedTo(PlanetVisual, new EntityCoordinates(grid, Vector2.Zero));
         info.Marker = grid;
         info.MeteorCountdown = _random.NextFloat(Settings.MeteorMinSeconds, Settings.MeteorMaxSeconds);
@@ -149,7 +156,8 @@ public sealed partial class SectorSpaceSystem : EntitySystem
 
     public bool WithinDescentRange(EntityUid ship, EntityUid marker) =>
         Transform(ship).MapUid == SpaceMap &&
-        Vector2.Distance(_transform.GetWorldPosition(ship), _transform.GetWorldPosition(marker)) <= 20;
+        Vector2.Distance(_maps.GetGridPosition((ship, Comp<PhysicsComponent>(ship), Transform(ship))),
+            _transform.GetWorldPosition(marker)) <= 20;
 
     private bool CanTravel(EntityUid ship)
     {
@@ -180,7 +188,7 @@ public sealed partial class SectorSpaceSystem : EntitySystem
                 new Box2(position - new Vector2(radius), position + new Vector2(radius)), ref occupied, includeMap: false);
             if (occupied.Any(e => e.Owner != marker))
                 continue;
-            MoveShip(ship, space, position);
+            MoveShip(ship, space, position - _transform.GetWorldRotation(ship).RotateVec(Comp<PhysicsComponent>(ship).LocalCenter));
             return true;
         }
         return false;

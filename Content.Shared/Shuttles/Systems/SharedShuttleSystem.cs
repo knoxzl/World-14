@@ -1,4 +1,6 @@
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared._Planet14;
+using System.Numerics;
 using Content.Shared.Shuttles.BUIStates;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.UI.MapObjects;
@@ -53,6 +55,9 @@ public abstract partial class SharedShuttleSystem : EntitySystem
     {
         var mapUid = Maps.GetMapOrInvalid(targetMap);
         var shuttleMap = Transform(shuttleUid).MapID;
+
+        if (!CanPlanetaryFTL(shuttleUid, targetMap))
+            return false;
 
         if (shuttleMap == targetMap)
             return true;
@@ -167,6 +172,32 @@ public abstract partial class SharedShuttleSystem : EntitySystem
 
     public float GetFTLRange(EntityUid shuttleUid) => FTLRange;
 
+    /// <summary>Surface distance must never translate into extra orbital jump range.</summary>
+    public Vector2 GetFTLRangeOrigin(EntityUid shuttle, MapId targetMap)
+    {
+        var source = Transform(shuttle).MapUid;
+        var target = Maps.GetMapOrInvalid(targetMap);
+        if (TryComp<Planet14OrbitComponent>(source, out var sourceOrbit) &&
+            GetEntity(sourceOrbit.SpaceMap) == target)
+            return sourceOrbit.Position;
+        if (TryComp<Planet14OrbitComponent>(target, out var targetOrbit) &&
+            GetEntity(targetOrbit.SpaceMap) == source)
+            return Vector2.Zero;
+        return Maps.GetGridPosition((shuttle, Comp<PhysicsComponent>(shuttle), Transform(shuttle)));
+    }
+
+    public bool CanPlanetaryFTL(EntityUid shuttle, MapId targetMap)
+    {
+        var source = Transform(shuttle).MapUid;
+        var target = Maps.GetMapOrInvalid(targetMap);
+        if (source == target || !TryComp<Planet14OrbitComponent>(target, out var orbit))
+            return true;
+        if (source != GetEntity(orbit.SpaceMap))
+            return false;
+        var position = Maps.GetGridPosition((shuttle, Comp<PhysicsComponent>(shuttle), Transform(shuttle)));
+        return Vector2.Distance(position, orbit.Position) <= 20;
+    }
+
     public float GetFTLBufferRange(EntityUid shuttleUid, MapGridComponent? grid = null)
     {
         if (!_gridQuery.Resolve(shuttleUid, ref grid))
@@ -193,7 +224,9 @@ public abstract partial class SharedShuttleSystem : EntitySystem
         _grids.Clear();
         var mapCoordinates = XformSystem.ToMapCoordinates(coordinates);
 
-        var ourPos = Maps.GetGridPosition((shuttleUid, shuttlePhysics, shuttleXform));
+        if (!CanPlanetaryFTL(shuttleUid, mapCoordinates.MapId))
+            return false;
+        var ourPos = GetFTLRangeOrigin(shuttleUid, mapCoordinates.MapId);
 
         // This is the already adjusted position
         var targetPosition = mapCoordinates.Position;
@@ -236,7 +269,7 @@ public abstract partial class SharedShuttleSystem : EntitySystem
         // If any grids in range that aren't us then can't FTL.
         foreach (var grid in _grids)
         {
-            if (grid.Owner == shuttleUid)
+            if (grid.Owner == shuttleUid || HasComp<Planet14OrbitMarkerComponent>(grid))
                 continue;
 
             return false;

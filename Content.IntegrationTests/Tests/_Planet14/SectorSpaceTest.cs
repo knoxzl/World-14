@@ -7,16 +7,19 @@ using Content.Server._Planet14.Space;
 using Content.Shared._Planet14;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Shuttles.Components;
+using Content.Shared.Shuttles.Systems;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Maths;
+using Robust.Shared.Prototypes;
 
 namespace Content.IntegrationTests.Tests._Planet14;
 
 public sealed class SectorSpaceTest : GameTest
 {
+    private static readonly EntProtoId PlanetVisual = "Planet14PlanetVisual";
     public override PoolSettings PoolSettings => new() { Connected = true, Fresh = true, Destructive = true };
 
     [Test]
@@ -38,6 +41,11 @@ public sealed class SectorSpaceTest : GameTest
         await Pair.RunSeconds(2);
         await Client.WaitAssertion(() =>
         {
+            var prototype = CProtoMan.Index(PlanetVisual);
+            Assert.That(prototype.TryComp<Robust.Client.GameObjects.SpriteComponent>(out var sprite,
+                Client.ResolveDependency<IComponentFactory>()), Is.True);
+            Assert.That(sprite!.DrawDepth, Is.LessThan((int) Content.Shared.DrawDepth.DrawDepth.LowFloors),
+                "Planet artwork must render behind even the lowest ship floor layer.");
             var banner = CEntMan.System<PlanetArrivalSystem>().CurrentArrival;
             Assert.That(banner, Is.Not.Null);
             Assert.That(banner!.Title, Does.Contain("Basirath starter planet"));
@@ -108,9 +116,22 @@ public sealed class SectorSpaceTest : GameTest
             Assert.That(SEntMan.GetComponent<TransformComponent>(ship).MapUid, Is.EqualTo(space));
             transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(21, 0));
             Assert.That(sector.TryDescend(ship, barren), Is.False, "Descent must require proximity to the planet.");
+            var shuttles = SEntMan.System<SharedShuttleSystem>();
+            Assert.That(shuttles.CanFTLTo(ship, SEntMan.GetComponent<TransformComponent>(barren).MapID, ship), Is.False,
+                "The actual FTL route must also enforce the 20-tile orbital limit.");
             transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(19, 0));
+            Assert.That(shuttles.CanFTLTo(ship, SEntMan.GetComponent<TransformComponent>(barren).MapID, ship), Is.True);
             Assert.That(sector.TryDescend(ship, barren), Is.True);
             Assert.That(SEntMan.GetComponent<TransformComponent>(ship).MapUid, Is.EqualTo(barren));
+            transforms.SetWorldPosition(ship, new Vector2(10000, 10000));
+            var spaceId = SEntMan.GetComponent<TransformComponent>(space).MapID;
+            var orbitPosition = transforms.GetWorldPosition(barrenMarker);
+            Assert.That(shuttles.GetFTLRangeOrigin(ship, spaceId), Is.EqualTo(orbitPosition));
+            Assert.That(shuttles.FTLFree(ship, new EntityCoordinates(space, new Vector2(10000, 10000)), Angle.Zero, null), Is.False,
+                "Surface exploration must not grant distant orbital FTL destinations.");
+            Assert.That(Enumerable.Range(0, 12).Any(i => shuttles.FTLFree(ship,
+                new EntityCoordinates(space, orbitPosition + new Vector2(MathF.Cos(i), MathF.Sin(i)) * 128),
+                Angle.Zero, null)), Is.True, "There should be valid destinations in the planet-centred orbital bubble.");
             Assert.That(sector.TryAscend(ship), Is.True);
 
             var asteroid = sector.CreateAsteroid(new Vector2(2000, 2000));
