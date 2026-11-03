@@ -60,6 +60,7 @@ id = "unknown_server_id"
 [events]
 # Controls if the game should run station events. (Meteors, Sleeper Syndicates, etc.)
 enabled = true
+persist_cycle = false # Start fresh on round start; old clock saves are archived.
 
 [shuttle]
 # Should the emergency shuttle be allowed to launch early by command staff?
@@ -159,7 +160,7 @@ enabled = false
 # https://docs.spacestation14.com/en/general-development/tips/config-file-reference.html
 
 [planet14]
-# Use the Planet 14 preset and starter map. Start/resume the clock when the round begins.
+# Use the Planet 14 preset and starter map. Start the clock when the round begins.
 # Set false to disable Planet 14's clock and daily announcements.
 enabled = true
 day_length_seconds = 86400

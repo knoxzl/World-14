@@ -7,6 +7,7 @@ using Robust.Shared.Physics;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
+using Content.Server.Decals;
 
 namespace Content.Server._Planet14.Space;
 
@@ -15,8 +16,10 @@ public sealed partial class SectorSpaceSystem
     private static readonly EntProtoId[] AsteroidRocks = ["WallRock", "WallRockTin", "WallRockCoal", "WallRockQuartz"];
     private static readonly EntProtoId[] MeteorRocks = ["WallRock", "WallRockGold", "WallRockSilver", "WallRockUranium", "WallRockPlasma", "WallRockDiamond"];
     private static readonly EntProtoId FallingMeteor = "Planet14FallingMeteor";
-    private static readonly EntProtoId[] WreckSalvage = ["CrateGenericSteel", "PartRodMetal10", "SheetSteel10", "CableApcStack10"];
-    private static readonly EntProtoId WreckWall = "WallSolid";
+    private static readonly EntProtoId[] WreckSalvage = ["PartRodMetal10", "SheetSteel10", "CableApcStack10", "CableMVStack1", "CableHVStack1", "Crowbar", "Wrench", "Screwdriver", "Gauze", "FoodSnackNutribrick"];
+    private static readonly EntProtoId[] WreckStructures = ["WallSolid", "WallSolid", "WallSolid", "Girder", "Grille", "GrilleBroken"];
+    private static readonly EntProtoId[] WreckCrates = ["CrateEngineeringToolbox", "CrateMedicalSupplies", "CrateEmergencyEVA"];
+    [Dependency] private DecalSystem _decals = default!;
     private readonly List<(EntityUid Surface, Vector2 Centre, int Delay)> _impacts = new();
 
     public void GenerateChunk(Vector2i chunk)
@@ -52,6 +55,8 @@ public sealed partial class SectorSpaceSystem
         }
         RemComp<ShuttleComponent>(grid);
         _physics.SetBodyType(grid, BodyType.Static);
+        EnsureComp<IFFComponent>(grid);
+        _shuttles.AddIFFFlag(grid, IFFFlags.HideLabel);
         return grid;
     }
 
@@ -60,18 +65,55 @@ public sealed partial class SectorSpaceSystem
         var grid = _maps.CreateGridEntity(Transform(SpaceMap!.Value).MapID);
         _transform.SetWorldPosition(grid.Owner, position);
         _metadata.SetEntityName(grid, "Unidentified wreck");
-        for (var x = -3; x <= 3; x++)
-        for (var y = -2; y <= 2; y++)
+        var halfWidth = _random.Next(5, 9);
+        var halfHeight = _random.Next(4, 7);
+        var free = new List<Vector2>();
+        for (var x = -halfWidth; x <= halfWidth; x++)
+        for (var y = -halfHeight; y <= halfHeight; y++)
         {
-            if (_random.Prob(0.15f))
+            var edge = Math.Abs(x) == halfWidth || Math.Abs(y) == halfHeight;
+            if (y != 0 && _random.Prob(edge ? 0.22f : 0.08f))
                 continue;
-            _maps.SetTile(grid, new Vector2i(x, y), new Tile(_tiles["Plating"].TileId));
-            if (Math.Abs(x) == 3 && Math.Abs(y) == 2)
-                SpawnAttachedTo(WreckWall, new EntityCoordinates(grid, new Vector2(x + 0.5f, y + 0.5f)));
+            var tile = _random.Prob(0.15f) ? "Lattice" : _random.Prob(0.4f) ? "Plating" : "FloorSteel";
+            _maps.SetTile(grid, new Vector2i(x, y), new Tile(_tiles[tile].TileId));
+            var coordinates = new Vector2(x + 0.5f, y + 0.5f);
+            // Keep the central corridor open; partitions divide the hull into ruined rooms.
+            var partition = Math.Abs(x) == 3 && Math.Abs(y) > 1;
+            if (y != 0 && (edge || partition) && _random.Prob(0.7f))
+                SpawnAttachedTo(_random.Pick(WreckStructures), new EntityCoordinates(grid, coordinates));
+            else
+                free.Add(coordinates);
         }
-        _maps.SetTile(grid, Vector2i.Zero, new Tile(_tiles["Plating"].TileId));
-        foreach (var item in WreckSalvage)
-            SpawnAtPosition(item, new EntityCoordinates(grid, new Vector2(0.5f)));
+        // Guaranteed examples make each hull visibly incomplete even on a sparse random roll.
+        EntProtoId[] damaged = ["WallSolid", "Girder", "Grille", "GrilleBroken"];
+        for (var i = 0; i < damaged.Length; i++)
+        {
+            var cell = new Vector2i(-2 + i, halfHeight);
+            var coordinates = new Vector2(cell.X + 0.5f, cell.Y + 0.5f);
+            var occupied = new HashSet<EntityUid>();
+            _lookup.GetEntitiesIntersecting(Transform(grid).MapID,
+                new Box2(position + coordinates - new Vector2(0.2f), position + coordinates + new Vector2(0.2f)), occupied);
+            if (occupied.Count == 0)
+            {
+                _maps.SetTile(grid, cell, new Tile(_tiles["Plating"].TileId));
+                SpawnAttachedTo(damaged[i], new EntityCoordinates(grid, coordinates));
+                free.Remove(coordinates);
+            }
+        }
+        _random.Shuffle(free);
+        var lootCount = _random.Next(8, 17);
+        for (var i = 0; i < lootCount && i < free.Count; i++)
+            SpawnAtPosition(_random.Pick(WreckSalvage), new EntityCoordinates(grid, free[i]));
+        for (var i = 0; i < WreckCrates.Length && lootCount + i < free.Count; i++)
+            SpawnAtPosition(WreckCrates[i], new EntityCoordinates(grid, free[lootCount + i]));
+        for (var i = 0; i < Math.Min(12, free.Count); i++)
+        {
+            var decal = i % 3 == 0 ? "danger" : i % 3 == 1 ? "burnt1" : "burnt2";
+            _decals.TryAddDecal(decal, new EntityCoordinates(grid, free[i] - new Vector2(0.5f)), out _,
+                rotation: _random.NextAngle(), cleanable: true);
+        }
+        EnsureComp<IFFComponent>(grid);
+        _shuttles.AddIFFFlag(grid, IFFFlags.HideLabel);
         return grid;
     }
 

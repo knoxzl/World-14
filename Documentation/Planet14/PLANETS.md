@@ -102,7 +102,9 @@ a map; later generation errors are logged and an incomplete map is queued for re
 ## NT daily broadcasts
 
 The sector clock starts automatically when the first round begins. Nanotrasen Sector Relief
-broadcasts the sector day in global announcement chat with the normal announcement cue.
+waits one minute before the Day 1 welcome. Fresh rounds start from Day 1 by default;
+set `planet14.persist_cycle = true` to opt into continuing a saved sector across restarts.
+Nanotrasen broadcasts the sector day in global chat with the normal announcement cue.
 Messages are in `Resources/Locale/en-US/_Planet14/announcements.ftl`; edit them to change
 the wording without C# changes. The sender is `planet14-nt-announcer`. Message IDs are
 `planet14-nt-day-1` through `planet14-nt-day-15`. The `day` and `daysUntilArrival` variables
@@ -116,7 +118,8 @@ day_announcements = true
 day_announcement_sound = true
 ```
 
-Day 1 encourages survivors and warns against unstable Black Space. Days 4, 11, and 12
+Day 1 welcomes Syndicate citizens, announces rescue in 13 days, and warns of limited seats.
+Days 4, 11, and 12
 explain stabilization, the last return window, and permanent closure. Days 13–15 cover
 evacuation preparations and the final day. Announcements describe the intended sector
 schedule; physical evacuation and Black Space travel mechanics are still separate work.

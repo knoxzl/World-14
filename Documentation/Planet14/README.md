@@ -45,11 +45,13 @@ starter_planet = "Planet14Starter"
 ```
 
 `planet14_status` is available to everyone. `planet14_start` remains a Server-admin
-recovery command if initial save creation failed; it never replaces an existing cycle.
+recovery command if initial save creation failed; it never replaces an active cycle.
 In a fresh lobby, status says that the clock is waiting for the round to begin.
 Starting writes `planet14/sector-cycle.json` under the server's user-data directory
-before activating the clock. Normal round restarts do not reset it. An existing cycle,
-including a collapsed cycle, is never automatically replaced.
+before activating the clock. By default, each fresh round starts at Day 1 and the
+previous clock file is preserved under `planet14/archives/`. Day 1's welcome waits
+one minute after round start. Set `persist_cycle = true` to resume the saved clock
+across restarts instead, including the real time elapsed while offline.
 Set `enabled = false` in the `[planet14]` section before startup to disable the clock.
 An explicit false in an older configuration still overrides the new default.
 

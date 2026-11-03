@@ -195,7 +195,7 @@ public abstract partial class SharedShuttleSystem : EntitySystem
         if (source != GetEntity(orbit.SpaceMap))
             return false;
         var position = Maps.GetGridPosition((shuttle, Comp<PhysicsComponent>(shuttle), Transform(shuttle)));
-        return Vector2.Distance(position, orbit.Position) <= 20;
+        return Vector2.Distance(position, orbit.Position) <= 50;
     }
 
     public float GetFTLBufferRange(EntityUid shuttleUid, MapGridComponent? grid = null)

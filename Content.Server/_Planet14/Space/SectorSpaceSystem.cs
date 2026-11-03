@@ -157,7 +157,7 @@ public sealed partial class SectorSpaceSystem : EntitySystem
     public bool WithinDescentRange(EntityUid ship, EntityUid marker) =>
         Transform(ship).MapUid == SpaceMap &&
         Vector2.Distance(_maps.GetGridPosition((ship, Comp<PhysicsComponent>(ship), Transform(ship))),
-            _transform.GetWorldPosition(marker)) <= 20;
+            _transform.GetWorldPosition(marker)) <= 50;
 
     private bool CanTravel(EntityUid ship)
     {

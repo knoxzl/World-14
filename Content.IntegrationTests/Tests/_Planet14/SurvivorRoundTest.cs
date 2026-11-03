@@ -4,6 +4,8 @@ using System.Numerics;
 using Content.IntegrationTests.Fixtures;
 using Content.Server._Planet14.Planets;
 using Content.Server.GameTicking;
+using Content.Server._Planet14.Sector;
+using Robust.Shared.ContentPack;
 using Content.Shared._Planet14;
 using Content.Shared.GameTicking;
 using Content.Shared.Inventory;
@@ -35,6 +37,10 @@ public sealed class SurvivorRoundTest : GameTest
         {
             var config = Server.ResolveDependency<IConfigurationManager>();
             config.SetCVar(Planet14CVars.Enabled, true);
+            config.SetCVar(Planet14CVars.PersistCycle, false);
+            var files = Server.ResolveDependency<IResourceManager>().UserData;
+            SectorCycleStore.Archive(files);
+            SectorCycleStore.Create(files, new SectorCycle(DateTimeOffset.UtcNow.AddDays(-5), 86400));
             Planet14RoundSystem.Configure(config);
             var ticker = SEntMan.System<ServerGameTicker>();
             ticker.SetGamePreset("Planet14");
@@ -42,6 +48,8 @@ public sealed class SurvivorRoundTest : GameTest
             ticker.StartRound(true);
             Assert.That(ticker.CurrentPreset!.ID, Is.EqualTo("Planet14"));
             Assert.That(ticker.RunLevel, Is.EqualTo(GameRunLevel.InRound));
+            Assert.That(SEntMan.System<SectorCycleSystem>().TryGetSnapshot(out var clock), Is.True);
+            Assert.That(clock.Day, Is.EqualTo(1), "A fresh round must not resume the previous Day 6 clock.");
 
             if (lateJoin)
                 ticker.MakeJoinGame(Pair.Player, EntityUid.Invalid, "Captain");
@@ -78,6 +86,14 @@ public sealed class SurvivorRoundTest : GameTest
         });
 
         await Pair.RunTicksSync(30); // Warm generation around the connected player.
+        await Server.WaitAssertion(() =>
+        {
+            var files = Server.ResolveDependency<IResourceManager>().UserData;
+            var cycle = SectorCycleStore.Load(files)!;
+            Assert.That(files.Exists(new Robust.Shared.Utility.ResPath(
+                $"/planet14/announcements/{cycle.StartedAtUtc.UtcTicks}/1.sent")), Is.False,
+                "Day 1 must wait a minute rather than broadcast as soon as the round starts.");
+        });
         var timer = Stopwatch.StartNew();
         await Pair.RunTicksSync(60);
         TestContext.Out.WriteLine($"Planet 14 paired simulation: {timer.Elapsed.TotalMilliseconds / 60:F2} ms per tick after warmup.");

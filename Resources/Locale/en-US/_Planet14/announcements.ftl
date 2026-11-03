@@ -1,5 +1,5 @@
 planet14-nt-announcer = Nanotrasen Sector Relief
-planet14-nt-day-1 = DAY 1 — Hold on, survivors. We are on the way! Remember: DO NOT ENTER BLACK SPACE. It is extremely unstable. Our evacuation ship is scheduled to arrive on DAY 14. Good luck.
+planet14-nt-day-1 = DAY 1 — Good day, Syndicate citizens of the Basirath sector! You might be wondering if this is the end for you? No, it is not! WE, NANOTRASEN, HAVE DECIDED TO SAVE YOU! We are sending a ship in 13 days. Admittedly, there are a certain number of seats. We cannot disclose that yet, but I'm sure you will make it... Anyways, we will be scoping the area out with our long-range probes to determine the best course of action. Good luck!
 planet14-nt-day-2 = DAY 2 — Keep your shelters supplied and look after one another. Black Space remains unstable. Evacuation arrival is {$daysUntilArrival} days away.
 planet14-nt-day-3 = DAY 3 — Build, prepare, survive. Do not attempt Black Space entry while the overlap remains unstable. Evacuation arrival is {$daysUntilArrival} days away.
 planet14-nt-day-4 = DAY 4 — The Black Space overlap has stabilized. Return travel is currently possible. Expeditions remain dangerous; keep a way home. Evacuation arrival is {$daysUntilArrival} days away.

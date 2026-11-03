@@ -42,10 +42,10 @@ public sealed class SectorSpaceTest : GameTest
         await Client.WaitAssertion(() =>
         {
             var prototype = CProtoMan.Index(PlanetVisual);
-            Assert.That(prototype.TryComp<Robust.Client.GameObjects.SpriteComponent>(out var sprite,
-                Client.ResolveDependency<IComponentFactory>()), Is.True);
-            Assert.That(sprite!.DrawDepth, Is.LessThan((int) Content.Shared.DrawDepth.DrawDepth.LowFloors),
-                "Planet artwork must render behind even the lowest ship floor layer.");
+            Assert.That(prototype.HasComp<PlanetBackdropComponent>(Client.ResolveDependency<IComponentFactory>()), Is.True);
+            Assert.That(prototype.HasComp<Robust.Client.GameObjects.SpriteComponent>(Client.ResolveDependency<IComponentFactory>()), Is.False);
+            Assert.That(Client.ResolveDependency<Robust.Client.Graphics.IOverlayManager>()
+                .GetOverlay<PlanetBackdropOverlay>().Space, Is.EqualTo(Robust.Shared.Enums.OverlaySpace.WorldSpaceBelowWorld));
             var banner = CEntMan.System<PlanetArrivalSystem>().CurrentArrival;
             Assert.That(banner, Is.Not.Null);
             Assert.That(banner!.Title, Does.Contain("Basirath starter planet"));
@@ -114,12 +114,12 @@ public sealed class SectorSpaceTest : GameTest
             var ship = SEntMan.EntityQuery<Planet14ShipGridComponent>().Single().Owner;
             Assert.That(sector.TryAscend(ship), Is.True);
             Assert.That(SEntMan.GetComponent<TransformComponent>(ship).MapUid, Is.EqualTo(space));
-            transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(21, 0));
+            transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(51, 0));
             Assert.That(sector.TryDescend(ship, barren), Is.False, "Descent must require proximity to the planet.");
             var shuttles = SEntMan.System<SharedShuttleSystem>();
             Assert.That(shuttles.CanFTLTo(ship, SEntMan.GetComponent<TransformComponent>(barren).MapID, ship), Is.False,
-                "The actual FTL route must also enforce the 20-tile orbital limit.");
-            transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(19, 0));
+                "The actual FTL route must also enforce the 50-tile orbital limit.");
+            transforms.SetWorldPosition(ship, transforms.GetWorldPosition(barrenMarker) + new Vector2(49, 0));
             Assert.That(shuttles.CanFTLTo(ship, SEntMan.GetComponent<TransformComponent>(barren).MapID, ship), Is.True);
             Assert.That(sector.TryDescend(ship, barren), Is.True);
             Assert.That(SEntMan.GetComponent<TransformComponent>(ship).MapUid, Is.EqualTo(barren));
@@ -135,9 +135,23 @@ public sealed class SectorSpaceTest : GameTest
             Assert.That(sector.TryAscend(ship), Is.True);
 
             var asteroid = sector.CreateAsteroid(new Vector2(2000, 2000));
+            Assert.That(shuttles.GetIFFLabel(asteroid), Is.Null);
             Assert.That(SEntMan.GetComponent<MapGridComponent>(asteroid).LocalAABB.Width, Is.GreaterThan(1));
             var wreck = sector.CreateWreck(new Vector2(2500, 2000));
-            Assert.That(SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB.Width, Is.GreaterThan(1));
+            Assert.That(shuttles.GetIFFLabel(wreck), Is.Null);
+            Assert.That(SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB.Width, Is.GreaterThanOrEqualTo(11));
+            var wreckEntities = SEntMan.EntityQuery<MetaDataComponent, TransformComponent>()
+                .Where(e => e.Item2.GridUid == wreck).Select(e => e.Item1.EntityPrototype?.ID).ToArray();
+            Assert.That(wreckEntities.Count(id => id != null && id.StartsWith("Crate")), Is.GreaterThanOrEqualTo(3));
+            Assert.That(SEntMan.EntityQuery<Content.Shared.Storage.Components.EntityStorageComponent, TransformComponent>()
+                .Where(e => e.Item2.GridUid == wreck).All(e => !e.Item1.Open), Is.True,
+                "Wreck supply crates should begin closed.");
+            Assert.That(wreckEntities, Does.Contain("WallSolid"));
+            Assert.That(wreckEntities, Does.Contain("Girder"));
+            Assert.That(wreckEntities, Does.Contain("GrilleBroken"));
+            Assert.That(SEntMan.System<Content.Server.Decals.DecalSystem>()
+                .GetDecalsIntersecting(wreck, SEntMan.GetComponent<MapGridComponent>(wreck).LocalAABB).Count,
+                Is.GreaterThan(0));
             var deposited = sector.DepositMeteor(surface, new Vector2(8000, 8000));
             Assert.That(deposited, Is.GreaterThan(0));
             Assert.That(Enumerable.Range(-1, 3).Any(x => Enumerable.Range(-1, 3).Any(y =>

@@ -165,6 +165,22 @@ public sealed class SectorCycleTest
         Assert.That(SectorCycleStore.Load(storage)!.StartedAtUtc, Is.EqualTo(Origin));
     }
 
+    [Test]
+    public void ArchivingAllowsANewDayOneWithoutLosingThePreviousClock()
+    {
+        IWritableDirProvider storage = new VirtualWritableDirProvider();
+        SectorCycleStore.Create(storage, new SectorCycle(Origin, 86400));
+        SectorCycleStore.Archive(storage);
+        Assert.That(storage.Exists(SectorCycleStore.StatePath), Is.False);
+        var archived = new System.Collections.Generic.List<string>(storage.DirectoryEntries(new Robust.Shared.Utility.ResPath("/planet14/archives")));
+        Assert.That(archived.Count, Is.EqualTo(1));
+        using (var reader = storage.OpenText(new Robust.Shared.Utility.ResPath("/planet14/archives/" + archived[0])))
+            Assert.That(reader.ReadToEnd(), Does.Contain("2029-10-29"));
+        var next = Origin.AddDays(6);
+        SectorCycleStore.Create(storage, new SectorCycle(next, 86400));
+        Assert.That(SectorCycleStore.Load(storage)!.GetSnapshot(next).Day, Is.EqualTo(1));
+    }
+
     [TestCase("null")]
     [TestCase("{}")]
     [TestCase("{\"StartedAtUtc\":\"2029-10-29T00:00:00Z\",\"DayLengthSeconds\":0}")]

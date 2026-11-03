@@ -11,6 +11,15 @@ public static class SectorCycleStore
     public static readonly ResPath StatePath = new("/planet14/sector-cycle.json");
     private static readonly ResPath TemporaryPath = new("/planet14/sector-cycle.json.tmp");
 
+    public static void Archive(IWritableDirProvider storage)
+    {
+        if (!storage.Exists(StatePath))
+            return;
+        var archive = new ResPath($"/planet14/archives/sector-cycle-{DateTimeOffset.UtcNow:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}.json");
+        storage.CreateDir(archive.Directory);
+        storage.Rename(StatePath, archive);
+    }
+
     public static SectorCycle? Load(IWritableDirProvider storage)
     {
         if (!storage.Exists(StatePath))

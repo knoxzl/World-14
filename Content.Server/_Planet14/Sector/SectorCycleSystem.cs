@@ -25,6 +25,7 @@ public sealed partial class SectorCycleSystem : EntitySystem
     private bool _loadFailed;
     private int _announcedDay;
     private bool _roundStarted;
+    private DateTimeOffset _welcomeAfter;
 
     public bool WaitingForRound => _enabled && !_loadFailed && _cycle == null && !_roundStarted;
 
@@ -33,7 +34,7 @@ public sealed partial class SectorCycleSystem : EntitySystem
         base.Initialize();
         SubscribeLocalEvent<GameRunLevelChangedEvent>(OnRunLevelChanged);
         _enabled = _config.GetCVar(Planet14CVars.Enabled);
-        if (!_enabled)
+        if (!_enabled || !_config.GetCVar(Planet14CVars.PersistCycle))
             return;
 
         try
@@ -50,7 +51,18 @@ public sealed partial class SectorCycleSystem : EntitySystem
 
     private void OnRunLevelChanged(GameRunLevelChangedEvent args)
     {
+        _enabled = _config.GetCVar(Planet14CVars.Enabled);
         _roundStarted = args.New == GameRunLevel.InRound;
+        if (_roundStarted)
+        {
+            _welcomeAfter = DateTimeOffset.UtcNow.AddMinutes(1);
+            if (!_config.GetCVar(Planet14CVars.PersistCycle))
+            {
+                _cycle = null;
+                _previous = null;
+                _announcedDay = 0;
+            }
+        }
         if (_roundStarted && _enabled && !_loadFailed && _cycle == null)
             TryStart(out _);
     }
@@ -94,6 +106,8 @@ public sealed partial class SectorCycleSystem : EntitySystem
         try
         {
             var cycle = new SectorCycle(DateTimeOffset.UtcNow, _config.GetCVar(Planet14CVars.DayLengthSeconds));
+            if (!_config.GetCVar(Planet14CVars.PersistCycle))
+                SectorCycleStore.Archive(_resources.UserData);
             SectorCycleStore.Create(_resources.UserData, cycle);
             _cycle = cycle;
             Log.Info($"Basirath sector cycle started at {cycle.StartedAtUtc:O}, {cycle.DayLengthSeconds} seconds per day.");
@@ -141,6 +155,8 @@ public sealed partial class SectorCycleSystem : EntitySystem
 
     private bool AnnounceDay(int day)
     {
+        if (day == 1 && DateTimeOffset.UtcNow < _welcomeAfter)
+            return false;
         if (_cycle == null || !_config.GetCVar(Planet14CVars.DayAnnouncements))
             return true;
 

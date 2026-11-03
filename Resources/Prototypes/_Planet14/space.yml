@@ -18,12 +18,7 @@
   name: planet
   categories: [HideSpawnMenu]
   components:
-  - type: Sprite
-    sprite: _Planet14/Space/planet.rsi
-    state: planet
-    scale: 5,5
-    drawdepth: -1000
-    noRot: true
+  - type: PlanetBackdrop
 
 # Visual meteors cross the sky before their mineral deposits settle.
 - type: entity
