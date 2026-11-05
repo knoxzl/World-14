@@ -117,7 +117,10 @@ public sealed partial class SectorSpaceSystem : EntitySystem
         orbit.Position = position;
         Dirty(surface, orbit);
         _shuttles.TryAddFTLDestination(Transform(surface).MapID, true, false, false, out _);
-        SpawnAttachedTo(PlanetVisual, new EntityCoordinates(grid, Vector2.Zero));
+        var visual = SpawnAttachedTo(PlanetVisual, new EntityCoordinates(grid, Vector2.Zero));
+        var backdrop = Comp<PlanetBackdropComponent>(visual);
+        backdrop.State = recipe.SpaceSpriteState;
+        Dirty(visual, backdrop);
         info.Marker = grid;
         info.MeteorCountdown = _random.NextFloat(Settings.MeteorMinSeconds, Settings.MeteorMaxSeconds);
         return grid;

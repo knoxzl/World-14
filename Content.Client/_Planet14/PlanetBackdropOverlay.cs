@@ -12,7 +12,7 @@ public sealed class PlanetBackdropOverlay : Overlay
 {
     private readonly IEntityManager _entities;
     private readonly SharedTransformSystem _transform;
-    private readonly Texture _texture;
+    private readonly SpriteSystem _sprites;
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowWorld;
 
     public PlanetBackdropOverlay(IEntityManager entities)
@@ -20,19 +20,20 @@ public sealed class PlanetBackdropOverlay : Overlay
         ZIndex = 1;
         _entities = entities;
         _transform = entities.System<SharedTransformSystem>();
-        _texture = entities.System<SpriteSystem>().Frame0(new SpriteSpecifier.Rsi(
-            new ResPath("/Textures/_Planet14/Space/planet.rsi"), "planet"));
+        _sprites = entities.System<SpriteSystem>();
     }
 
     protected override void Draw(in OverlayDrawArgs args)
     {
         var planets = _entities.EntityQueryEnumerator<PlanetBackdropComponent, TransformComponent>();
-        while (planets.MoveNext(out var uid, out _, out var transform))
+        while (planets.MoveNext(out var uid, out var backdrop, out var transform))
         {
             if (transform.MapID != args.MapId)
                 continue;
             args.WorldHandle.SetTransform(_transform.GetWorldMatrix(uid));
-            args.WorldHandle.DrawTextureRect(_texture, new Box2(-5, -5, 5, 5));
+            var texture = _sprites.Frame0(new SpriteSpecifier.Rsi(
+                new ResPath("/Textures/_Planet14/Space/planet.rsi"), backdrop.State));
+            args.WorldHandle.DrawTextureRect(texture, new Box2(-5, -5, 5, 5));
         }
         args.WorldHandle.SetTransform(Matrix3x2.Identity);
     }

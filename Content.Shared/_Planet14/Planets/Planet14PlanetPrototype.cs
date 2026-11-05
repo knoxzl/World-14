@@ -19,6 +19,7 @@ public sealed partial class Planet14PlanetPrototype : IPrototype
     [DataField] public string Description = "An unexplored world in the dying Basirath sector.";
     [DataField] public string BiomeName = "Unknown";
     [DataField] public Vector2 SpacePosition;
+    [DataField] public string SpaceSpriteState = "planet";
 }
 
 /// <summary>Uses SS14's existing light curve and synchronized sun shadows.</summary>

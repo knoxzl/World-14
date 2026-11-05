@@ -109,6 +109,15 @@ public sealed class SectorSpaceTest : GameTest
             var barren = SEntMan.EntityQuery<PlanetSurfaceComponent>()
                 .Single(p => p.Recipe == "Planet14Barren").Owner;
             var barrenMarker = SEntMan.GetComponent<PlanetSurfaceComponent>(barren).Marker!.Value;
+            var trispic = SEntMan.EntityQuery<PlanetSurfaceComponent>()
+                .Single(p => p.Recipe == "Planet14Trispic").Owner;
+            var trispicMarker = SEntMan.GetComponent<PlanetSurfaceComponent>(trispic).Marker!.Value;
+            foreach (var (planetMarker, state) in new[] { (marker, "starter"), (barrenMarker, "barren"), (trispicMarker, "trispic") })
+            {
+                var visual = SEntMan.EntityQuery<PlanetBackdropComponent>()
+                    .Single(p => SEntMan.GetComponent<TransformComponent>(p.Owner).ParentUid == planetMarker);
+                Assert.That(visual.State, Is.EqualTo(state));
+            }
 
             SEntMan.SpawnEntity("Planet14ShipStarter", new EntityCoordinates(surface, new Vector2(0.5f)));
             var ship = SEntMan.EntityQuery<Planet14ShipGridComponent>().Single().Owner;

@@ -1,6 +1,6 @@
 - type: planet14Sector
   id: Basirath
-  planets: [Planet14Starter, Planet14Barren]
+  planets: [Planet14Starter, Planet14Barren, Planet14Trispic]
   meteorMinSeconds: 1800
   meteorMaxSeconds: 3600
   wreckChance: 0.12

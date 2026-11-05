@@ -135,3 +135,10 @@ restarts. Back these up with the cycle file. They are written before dispatch: a
 between marking and sending can lose a message, but cannot repeat it. A storage error
 is logged and suppresses that broadcast without stopping the sector clock. Archiving
 the cycle and creating a new one uses a new marker namespace automatically.
+
+## Orbital artwork
+
+`spaceSpriteState` selects a 64x64 state from `_Planet14/Space/planet.rsi`.
+The supplied states are `starter`, `barren`, and `trispic`; `planet` remains the default test image for custom recipes.
+Artwork covers 10x10 world tiles, below ship floors, and rotates with the world.
+The sector includes Trispic with a placeholder rocky surface; its facility is not implemented.

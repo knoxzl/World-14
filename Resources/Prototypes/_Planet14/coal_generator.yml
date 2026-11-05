@@ -1,0 +1,66 @@
+- type: entity
+  parent: PortableGeneratorBase
+  id: Planet14CoalGenerator
+  name: coal generator
+  description: A coal-fired generator supplying up to 10 kW through MV cables. Anchor it over a cable, load coal, and start it. One coal lasts one minute at full output.
+  components:
+  - type: Sprite
+    sprite: _Planet14/Structures/coal_generator.rsi
+    layers:
+    - state: generator
+  - type: FuelGenerator
+    minTargetPower: 10000
+    maxTargetPower: 10000
+    targetPower: 10000
+    optimalPower: 10000
+    optimalBurnRate: 0.016666667
+  - type: PowerSupplier
+    voltage: Medium
+    node: output
+    supplyRampRate: 10000
+  - type: SolidFuelGeneratorAdapter
+    fuelMaterial: Coal
+    multiplier: 0.01
+  - type: MaterialStorage
+    storageLimit: 3000
+    materialWhiteList: [Coal]
+  - type: PortableGenerator
+    startChance: 1
+  - type: NodeContainer
+    examinable: true
+    nodes:
+      output:
+        !type:CableDeviceNode
+        nodeGroupID: MVPower
+  - type: PowerMonitoringDevice
+    group: Generator
+    loadNodes: [output]
+    sprite: _Planet14/Structures/coal_generator.rsi
+    state: generator
+  - type: Construction
+    graph: Planet14CoalGenerator
+    node: generator
+
+- type: construction
+  parent: BaseStructureFullTile
+  id: Planet14CoalGenerator
+  graph: Planet14CoalGenerator
+  targetNode: generator
+
+# Bootstrap recipe; no circuit printer required.
+- type: constructionGraph
+  id: Planet14CoalGenerator
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: generator
+      steps:
+      - material: Steel
+        amount: 20
+        doAfter: 5
+      - material: Cable
+        amount: 5
+        doAfter: 3
+  - node: generator
+    entity: Planet14CoalGenerator
