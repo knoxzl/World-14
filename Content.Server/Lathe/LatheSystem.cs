@@ -88,6 +88,14 @@ namespace Content.Server.Lathe
                 if (lathe.CurrentRecipe == null)
                     continue;
 
+                var progress = new LatheProgressAttemptEvent();
+                RaiseLocalEvent(uid, ref progress);
+                if (progress.Cancelled)
+                {
+                    comp.StartTime += TimeSpan.FromSeconds(frameTime);
+                    continue;
+                }
+
                 if (_timing.CurTime - comp.StartTime >= comp.ProductionLength)
                     FinishProducing(uid, lathe);
             }

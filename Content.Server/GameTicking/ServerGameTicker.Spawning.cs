@@ -5,6 +5,7 @@ using Content.Server.Administration.Managers;
 using Content.Server.Administration.Systems;
 using Content.Server.GameTicking.Events;
 using Content.Shared.CCVar;
+using Content.Shared._Planet14;
 using Content.Shared.Database;
 using Content.Shared.GameTicking;
 using Content.Shared.Humanoid.Prototypes;
@@ -61,6 +62,15 @@ namespace Content.Server.GameTicking
             Dictionary<NetUserId, HumanoidCharacterProfile> profiles,
             bool force)
         {
+            if (Cfg.GetCVar(Planet14CVars.Enabled))
+            {
+                foreach (var user in profiles.Keys.ToArray())
+                    profiles[user] = profiles[user].WithJobPriorities(new Dictionary<ProtoId<JobPrototype>, JobPriority>
+                    {
+                        ["Survivor"] = JobPriority.High,
+                    });
+            }
+
             // Allow game rules to spawn players by themselves if needed. (For example, nuke ops or wizard)
             RaiseLocalEvent(new RulePlayerSpawningEvent(readyPlayers, profiles, force));
 
@@ -136,6 +146,8 @@ namespace Content.Server.GameTicking
             bool silent = false)
         {
             var character = GetPlayerProfile(player);
+            if (Cfg.GetCVar(Planet14CVars.Enabled))
+                jobId = "Survivor";
 
             var jobBans = _banManager.GetJobBans(player.UserId);
             if (jobBans == null || jobId != null && jobBans.Contains(jobId)) //TODO: use IsRoleBanned directly?
@@ -216,6 +228,8 @@ namespace Content.Server.GameTicking
             }
 
             // We raise this event to allow other systems to handle spawning this player themselves. (e.g. late-join wizard, etc)
+            if (Cfg.GetCVar(Planet14CVars.Enabled))
+                jobId = "Survivor";
             var bev = new PlayerBeforeSpawnEvent(player, character, jobId, lateJoin, station);
             RaiseLocalEvent(bev);
 

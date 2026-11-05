@@ -85,6 +85,14 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
 
     public void SetMap(MapId mapId, Vector2 offset, bool recentering = false)
     {
+        if (_shuttleEntity is { } ship && EntManager.TryGetComponent<TransformComponent>(ship, out var transform) &&
+            transform.MapID != mapId && mapId != MapId.Nullspace)
+        {
+            var destination = _mapSystem.GetMapOrInvalid(mapId);
+            if (EntManager.HasComponent<Content.Shared._Planet14.Planet14OrbitComponent>(transform.MapUid) ||
+                EntManager.HasComponent<Content.Shared._Planet14.Planet14OrbitComponent>(destination))
+                offset = _shuttles.GetFTLRangeOrigin(ship, mapId);
+        }
         ViewingMap = mapId;
         TargetOffset = offset;
         Recentering = recentering;
@@ -266,7 +274,7 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
                 var gridUid = _shuttleEntity.Value;
                 var gridPhysics = _physicsQuery.GetComponent(gridUid);
                 var (gridPos, gridRot) = _xformSystem.GetWorldPositionRotation(shuttleXform);
-                gridPos = Maps.GetGridPosition((gridUid, gridPhysics), gridPos, gridRot);
+                gridPos = _shuttles.GetFTLRangeOrigin(gridUid, ViewingMap);
 
                 var gridRelativePos = Vector2.Transform(gridPos, matty);
                 gridRelativePos = gridRelativePos with { Y = -gridRelativePos.Y };

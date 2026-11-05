@@ -56,10 +56,27 @@ public abstract class SharedLightCycleSystem : EntitySystem
     }
 
     /// <summary>
-    /// Calculates light intensity as a function of time.
+    /// Maps elapsed cycle time to the lighting curve while preserving the configured daylight fraction.
     /// </summary>
+    public static float GetCycleTime(LightCycleComponent comp, float time)
+    {
+        // Preserve the original curve exactly for every existing map.
+        if (comp.DayFraction == 0.5f)
+            return time;
+        var duration = MathF.Max(1, (float) comp.Duration.TotalSeconds);
+        var phase = ((time % duration) + duration) % duration / duration;
+        var day = float.IsFinite(comp.DayFraction) ? Math.Clamp(comp.DayFraction, 0.01f, 0.99f) : 0.5f;
+        var sunrise = (1 - day) / 2;
+        var sunset = 1 - sunrise;
+        var mapped = phase < sunrise ? phase / sunrise * 0.25f
+            : phase < sunset ? 0.25f + (phase - sunrise) / day * 0.5f
+            : 0.75f + (phase - sunset) / sunrise * 0.25f;
+        return mapped * duration;
+    }
+
     public static double CalculateLightLevel(LightCycleComponent comp, float time)
     {
+        time = GetCycleTime(comp, time);
         var waveLength = MathF.Max(1, (float) comp.Duration.TotalSeconds);
         var crest = MathF.Max(0f, comp.MaxLightLevel);
         var shift = MathF.Max(0f, comp.MinLightLevel);
@@ -75,6 +92,7 @@ public abstract class SharedLightCycleSystem : EntitySystem
     /// </summary>
     public static Color CalculateColorLevel(LightCycleComponent comp, float time)
     {
+        time = GetCycleTime(comp, time);
         var waveLength = MathF.Max(1f, (float) comp.Duration.TotalSeconds);
 
         var red = MathF.Min(comp.ClipLevel.R,

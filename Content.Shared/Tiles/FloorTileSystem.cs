@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using Content.Shared._Planet14;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Database;
 using Content.Shared.Interaction;
@@ -66,7 +67,24 @@ public sealed partial class FloorTileSystem : EntitySystem
             return;
 
         // this looks a bit sussy but it might be because it needs to be able to place off of grids and expand them
-        var location = args.ClickLocation.AlignWithClosestGridTile();
+        var click = args.ClickLocation;
+        // Planet maps are grids too, so the normal alignment would attach new
+        // lattice to the entire planet instead of extending a nearby ship.
+        var clickMap = _transform.ToMapCoordinates(click);
+        if (_transform.GetGrid(click) is { } ground && HasComp<MapComponent>(ground))
+        {
+            var nearby = new List<Entity<MapGridComponent>>();
+            _map.FindGridsIntersecting(clickMap.MapId,
+                Box2.UnitCentered.Scale(2.1f).Translated(clickMap.Position), ref nearby);
+            foreach (var candidate in nearby)
+            {
+                if (!HasComp<Planet14ShipGridComponent>(candidate))
+                    continue;
+                click = _transform.ToCoordinates(candidate.Owner, clickMap);
+                break;
+            }
+        }
+        var location = click.AlignWithClosestGridTile();
         var locationMap = _transform.ToMapCoordinates(location);
         if (locationMap.MapId == MapId.Nullspace)
             return;
@@ -78,11 +96,13 @@ public sealed partial class FloorTileSystem : EntitySystem
         // While you may already have a tile close you want to replace when we get half-tiles that may also be finnicky
         // so we're just gon with this for now.
         const bool inRange = true;
-        var state = (inRange, location.EntityId);
+        EntityUid? ignoredMap = HasComp<Planet14ShipGridComponent>(location.EntityId)
+            ? Transform(location.EntityId).MapUid : null;
+        var state = (inRange, location.EntityId, ignoredMap);
         _map.FindGridsIntersecting(map.MapId, new Box2(map.Position - CheckRange, map.Position + CheckRange), ref state,
-            static (EntityUid entityUid, MapGridComponent grid, ref (bool weh, EntityUid EntityId) tuple) =>
+            static (EntityUid entityUid, MapGridComponent grid, ref (bool weh, EntityUid EntityId, EntityUid? ignoredMap) tuple) =>
             {
-                if (tuple.EntityId == entityUid)
+                if (tuple.EntityId == entityUid || tuple.ignoredMap == entityUid)
                     return true;
 
                 tuple.weh = false;

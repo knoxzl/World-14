@@ -1,0 +1,34 @@
+- type: entity
+  id: Planet14ShipStarter
+  name: ship starter lattice
+  description: The first piece of an independent ship. Extend it with metal rods, add plating, then build your ship's equipment.
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Sprite
+    sprite: Structures/catwalk.rsi
+    state: catwalk_preview
+  - type: ShipStarter
+  - type: Construction
+    graph: Planet14ShipStarter
+    node: lattice
+
+- type: construction
+  parent: BaseStructureFullTile
+  id: Planet14ShipStarter
+  graph: Planet14ShipStarter
+  targetNode: lattice
+
+- type: constructionGraph
+  id: Planet14ShipStarter
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: lattice
+      steps:
+      - material: MetalRod
+        amount: 10
+        doAfter: 3
+  - node: lattice
+    entity: Planet14ShipStarter
