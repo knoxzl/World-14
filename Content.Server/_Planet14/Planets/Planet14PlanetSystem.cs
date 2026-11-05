@@ -75,6 +75,7 @@ public sealed partial class Planet14PlanetSystem : EntitySystem
         light.Enabled = settings.Enabled;
         light.InitialOffset = false;
         light.Duration = settings.Duration;
+        light.DayFraction = settings.DayFraction;
         light.Offset = settings.Offset;
         light.MinLightLevel = settings.MinLightLevel;
         light.MaxLightLevel = settings.MaxLightLevel;

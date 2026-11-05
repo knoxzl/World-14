@@ -80,6 +80,9 @@
   - Planet14BenchPrinterBoard
   - Planet14BenchManipulator
   - Planet14BenchBeaker
+  - Planet14BenchAPCBoard
+  - Planet14BenchBattery
+  - Planet14BenchSubstationBoard
 
 - type: latheRecipe
   abstract: true
@@ -185,3 +188,30 @@
   completetime: 30
   materials:
     Glass: 200
+
+- type: latheRecipe
+  id: Planet14BenchAPCBoard
+  result: APCElectronics
+  categories: [Parts]
+  completetime: 60
+  materials:
+    Steel: 500
+    Glass: 500
+
+- type: latheRecipe
+  id: Planet14BenchBattery
+  result: PowerCellSmallPrinted
+  categories: [Parts]
+  completetime: 45
+  materials:
+    Steel: 500
+    Glass: 300
+
+- type: latheRecipe
+  id: Planet14BenchSubstationBoard
+  result: WallmountSubstationElectronics
+  categories: [Parts]
+  completetime: 90
+  materials:
+    Steel: 1000
+    Glass: 800

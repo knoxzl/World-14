@@ -27,6 +27,7 @@ public sealed partial class Planet14PlanetPrototype : IPrototype
 public sealed partial class PlanetDayNightSettings
 {
     [DataField] public bool Enabled = true;
+    [DataField] public float DayFraction = 0.5f;
     /// <summary>One complete sunrise-to-sunrise cycle, in simulation time.</summary>
     [DataField] public TimeSpan Duration = TimeSpan.FromMinutes(30);
     /// <summary>Phase offset into the lighting curve; zero starts at midnight.</summary>
@@ -38,7 +39,8 @@ public sealed partial class PlanetDayNightSettings
     [DataField] public Color MaxLevel = new(2f, 2f, 5f);
     [DataField] public Color ClipLevel = new(1f, 1f, 1.25f);
 
-    public bool IsValid => Duration >= TimeSpan.FromSeconds(1) &&
+    public bool IsValid => float.IsFinite(DayFraction) && DayFraction > 0 && DayFraction < 1 &&
+        Duration >= TimeSpan.FromSeconds(1) &&
         float.IsFinite(MinLightLevel) && float.IsFinite(MaxLightLevel) && float.IsFinite(ClipLight) &&
         MinLightLevel >= 0 && MaxLightLevel >= MinLightLevel && ClipLight >= 0;
 }

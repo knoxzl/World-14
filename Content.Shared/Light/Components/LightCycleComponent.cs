@@ -21,6 +21,10 @@ public sealed partial class LightCycleComponent : Component
     [DataField, AutoNetworkedField]
     public TimeSpan Offset;
 
+    /// <summary>Fraction of a cycle between sunrise and sunset.</summary>
+    [DataField, AutoNetworkedField]
+    public float DayFraction = 0.5f;
+
     [DataField, AutoNetworkedField]
     public bool Enabled = true;
 

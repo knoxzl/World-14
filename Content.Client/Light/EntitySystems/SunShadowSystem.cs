@@ -35,6 +35,8 @@ public sealed partial class SunShadowSystem : SharedSunShadowSystem
                 .Subtract(pausedTime)
                 .TotalSeconds % cycle.Duration.TotalSeconds);
 
+            if (TryComp<LightCycleComponent>(uid, out var light))
+                time = SharedLightCycleSystem.GetCycleTime(light, time);
             var (direction, alpha) = GetShadow((uid, cycle), time);
             shadow.Direction = direction;
             shadow.Alpha = alpha;

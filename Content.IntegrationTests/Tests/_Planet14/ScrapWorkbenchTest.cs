@@ -42,6 +42,7 @@ public sealed class ScrapWorkbenchTest : GameTest
                 "CableApcStack1", "CableMVStack1", "CableHVStack1",
                 "CircuitImprinterMachineCircuitboard", "MicroManipulatorStockPart", "Beaker",
                 "Wrench", "Screwdriver", "Crowbar", "Wirecutter", "Welder",
+                "APCElectronics", "PowerCellSmallPrinted", "WallmountSubstationElectronics",
             }));
             foreach (var recipe in recipes)
                 Assert.That(SProtoMan.HasIndex(SProtoMan.Index(recipe).Result!.Value), Is.True);

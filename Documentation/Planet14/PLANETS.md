@@ -142,3 +142,5 @@ the cycle and creating a new one uses a new marker namespace automatically.
 The supplied states are `starter`, `barren`, and `trispic`; `planet` remains the default test image for custom recipes.
 Artwork covers 10x10 world tiles, below ship floors, and rotates with the world.
 The sector includes Trispic with a placeholder rocky surface; its facility is not implemented.
+
+The starter recipe uses `dayFraction: 0.8` for approximately 24 minutes from sunrise to sunset and six minutes of night per 30-minute cycle. `minLightLevel: 0.45` and a brighter `minLevel` preserve usable moonlight. Other planets default to equal day/night. `dayFraction` must be greater than zero and less than one; lighting and sun shadows share the same time mapping. `offset` remains elapsed cycle time (900 seconds starts at midday on the starter).

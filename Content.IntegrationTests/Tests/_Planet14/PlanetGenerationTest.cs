@@ -84,6 +84,16 @@ public sealed class PlanetGenerationTest : GameTest
                 var shadows = SEntMan.GetComponent<SunShadowCycleComponent>(uid);
                 Assert.That(light.Duration, Is.EqualTo(TimeSpan.FromSeconds(duration)));
                 Assert.That(light.InitialOffset, Is.False);
+                if (recipe == "Planet14Starter")
+                {
+                    Assert.That(light.DayFraction, Is.EqualTo(0.8f));
+                    Assert.That(SharedLightCycleSystem.GetCycleTime(light, duration * 0.1f), Is.EqualTo(duration * 0.25f).Within(0.01));
+                    Assert.That(SharedLightCycleSystem.GetCycleTime(light, duration * 0.9f), Is.EqualTo(duration * 0.75f).Within(0.01));
+                    Assert.That(SharedLightCycleSystem.GetCycleTime(light, duration), Is.EqualTo(0).Within(0.01));
+                    var midnight = SharedLightCycleSystem.GetColor((uid, light), light.OriginalColor, 0);
+                    Assert.That(midnight.R, Is.GreaterThan(0.15f), "Moonlight should leave terrain visible.");
+                    Assert.That(midnight.G, Is.GreaterThan(0.15f));
+                }
                 Assert.That(shadows.Duration, Is.EqualTo(light.Duration));
                 Assert.That(shadows.Offset, Is.EqualTo(light.Offset));
                 Assert.That(SharedLightCycleSystem.CalculateLightLevel(light, duration / 2f),

@@ -30,3 +30,17 @@ to supply this path; no pre-existing circuit printer or plastic is required.
 Recipes, timings and construction costs are in
 `Resources/Prototypes/_Planet14/scrap_workbench.yml`. The attendance distance is the
 `ScrapWorkbench.attendanceRange` setting. The sprite is Knoxzl's original 32×32 PNG.
+
+## Bootstrap power parts
+
+The manual workbench also produces:
+
+| Part | Materials | Time |
+| --- | --- | --- |
+| APC electronics | 5 steel, 5 glass | 60 seconds |
+| Small battery (empty) | 5 steel, 3 glass | 45 seconds |
+| Wall-mounted substation electronics | 10 steel, 8 glass | 90 seconds |
+
+Use the G menu to build an APC frame (3 steel), then insert the APC board. The APC has its own integrated battery and connects MV input to local power.
+
+For the wall-mounted substation, construct its frame with 5 steel; add 5 each of LV, MV and HV cable, screw it together, insert the substation board, a small battery and one manipulator, then finish with a screwdriver. All loose parts and cables are available from the workbench. The substation converts HV to MV; the coal generator already outputs MV and can feed an APC directly. Printed batteries start empty.
